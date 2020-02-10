@@ -7,14 +7,14 @@ const sampleFunct = (start, end, t, d, s) => Easing.get("easeInOutCirc", start, 
 const DIRECTIONS = new Set(["FORWARD", "BACK"]); 
 
 const moving = {
-  go(t, d) {
-    console.log(this.from, this.x, this.y);
-    this.x = sampleFunct(this.from.x, this.to.x, t, d, 0 );
-    this.y = sampleFunct(this.from.y, this.to.y, t, d, 0 )
+  go(t) {
+    this.x = sampleFunct(this.from.x, this.to.x, t, this.duration, 0 );
+    this.y = sampleFunct(this.from.y, this.to.y, t, this.duration, 0 );
   },
-  goBack(t, d) {
-    this.x = sampleFunct(this.to.x, this.from.x, t, d, 0 );
-    this.y = sampleFunct(this.to.y, this.from.y, t, d, 0 )  }
+  goBack(t) {
+    this.x = sampleFunct(this.to.x, this.from.x, t, this.duration, 0 );
+    this.y = sampleFunct(this.to.y, this.from.y, t, this.duration, 0 );
+  }
 }
 
 
@@ -24,18 +24,17 @@ class Point {
     this.y = point.y;
     this.radius = 1;
   }
-  draw(ctx) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-    ctx.closePath();
-    ctx.fill();
+  draw() {
+    this.ctx.beginPath();
+    this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+    this.ctx.closePath();
+    this.ctx.fill();
     return this;
   }
 
   randomUpdate(max = 5, min = 0, t) {
     this.x += plusMinus(randomOf(max, min));
     this.y += plusMinus(randomOf(max, min));
-
     return this
   }
 }
@@ -92,5 +91,21 @@ function plusMinus(num) {
   return Math.round(Math.random()) ? num : -num;
 }
 
-export { Point, MovingPoint, Dot, MovingDot, RandomDot };
+function Factory(context) {
+  // this.ctx = ctx;
+  // this.time = time;
+  // this.duration = duration;
+  this.create = function(type, ...args) {
+    let figure;
+    switch(type) {
+      case ('movingPoint') : figure = Object.assign(new MovingPoint(...args), context); break;
+      case ('movingDot') : figure = new MovingDot(...args); break;
+      default :
+        return "Factory can't produce";
+    }
+    return figure;
+  }
+}
+
+export { Point, MovingPoint, Dot, MovingDot, Factory, RandomDot };
 

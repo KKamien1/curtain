@@ -1,9 +1,9 @@
-import {Point, MovingPoint, Dot, MovingDot, RandomDot} from './figures.js' 
+import {Point, MovingPoint, Dot, MovingDot, Factory, RandomDot} from './figures.js' 
 
 
 const [FORWARD, PAUSE, BACK, END] = ['forward', 'pause', 'back', 'end'];
 
-
+const factory = new Factory();
 
 function generate(n, fn, div) {
   const result = [];
@@ -23,7 +23,6 @@ const makecanvas = div => {
   ctx.strokeStyle = "rgba(200,69,200,.6)";
   const color = "rgba(216,69,11,.6)";
   const points = generate(20, dotInDiv, size, 5, 5, color);
-
   const cursor = new Cursor(div, points.slice(0, 10));
   ["click"].forEach(evt =>
     box2.addEventListener(evt, cursor.dispatchEvent, false)
@@ -60,24 +59,34 @@ class Frame {
     this.ctx = this.canvas.getContext("2d");
     this.ctx.fillStyle = "rgba(216,69,11,.9)";
     this.color = "rgba(216,69,11,.9)";
-    this.duration = 5000;
+    this.duration = 500;
     this.fps = 60;
     this.t = 0;
     this.start = null;
     div.style.position = "relative";
     div.appendChild(this.canvas);    
     window.addEventListener('resize', (e) => this.handleResize(e));
+    
+    let context = {ctx:this.ctx, duration:this.duration};
+    const factory = new Factory(context);
+
+    let tl = factory.create('movingPoint' , this.tl, this.tl);
+    let tr = factory.create('movingPoint' , this.tl, this.tr);
+    let bl = factory.create('movingPoint' , this.tl, this.bl);
+    
+    let br = factory.create('movingPoint' , this.br, this.br);
+    let tr2 = factory.create('movingPoint' , this.br, this.tr);
+    let bl2 = factory.create('movingPoint' , this.br, this.bl);
 
 
-    this.topLetf = [new MovingPoint(this.tl, this.tl), new MovingPoint(this.tl, this.tr), new MovingPoint(this.tl, this.bl)];
-    this.bottomRight = [new MovingPoint(this.br,this.br), new MovingPoint(this.br, this.tr), new MovingPoint(this.br, this.bl)];
+    this.topLeft = [tl, tr, bl];
+    this.bottomRight = [br, tr2, bl2];
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.events();
   }
 
   events() {
-    //this.canvas.addEventListener("mouseover", ()=> this.notify(FORWARD));
     this.canvas.addEventListener("mouseout", ()=> this.notify(PAUSE));
     this.canvas.addEventListener("mouseenter", ()=> this.notify(FORWARD));
   }
@@ -125,12 +134,6 @@ class Frame {
     this.setHeight = clientHeight;
     this.info;
   }
-  draw(dot) {
-    this.ctx.beginPath();
-    this.ctx.arc(dot.x, dot.y, dot.radius, 0, 2 * Math.PI);
-    this.ctx.closePath();
-    this.ctx.fill();
-  }
 
   loop(timestemp) {
 
@@ -139,9 +142,9 @@ class Frame {
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    [...this.topLetf, ...this.bottomRight].forEach(element => element.draw(this.ctx).go(this.t, this.duration ));
+    [...this.topLeft, ...this.bottomRight].forEach(element => element.draw().go(this.t));
 
-    drawPoligon.call( this, this.topLetf, this.color);
+    drawPoligon.call( this, this.topLeft, this.color);
     drawPoligon.call( this, this.bottomRight, this.color);
 
     if (this.t <= this.duration) {
@@ -153,7 +156,6 @@ class Frame {
       this.requestId = undefined;
       this.notify(END)
     }
-
   }
 }
 
