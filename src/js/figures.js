@@ -8,15 +8,32 @@ const DIRECTIONS = new Set(["FORWARD", "BACK"]);
 
 const moving = {
   go(t) {
-    this.x = sampleFunct(this.from.x, this.to.x, t, this.duration, 0 );
-    this.y = sampleFunct(this.from.y, this.to.y, t, this.duration, 0 );
+    switch(this.direction) {
+      case 'forward' : {
+        this.x = sampleFunct(this.from.x, this.to.x, t, this.duration, 0 );
+        this.y = sampleFunct(this.from.y, this.to.y, t, this.duration, 0 );
+      };
+      break;
+      case 'back' : {
+        this.x = sampleFunct(this.to.x, this.from.x, t, this.duration, 0 );
+        this.y = sampleFunct(this.to.y, this.from.y, t, this.duration, 0 );
+      };
+      break;
+      default:
+        return;
+    }
   },
-  goBack(t) {
-    this.x = sampleFunct(this.to.x, this.from.x, t, this.duration, 0 );
-    this.y = sampleFunct(this.to.y, this.from.y, t, this.duration, 0 );
-  }
 }
 
+const notify = {
+  notify(value) {
+    this.direction = value;
+    if(value === 'reset') {
+        this.x = this.from.x;
+        this.y = this.from.y;
+    }
+  }
+}
 
 class Point {
   constructor(point) {
@@ -45,10 +62,12 @@ class MovingPoint extends Point{
     super(from);
     this.from = from;
     this.to = to;
+    this.direction = null;
   }
 }
 
-Object.assign(MovingPoint.prototype, moving)
+Object.assign(MovingPoint.prototype, moving);
+Object.assign(MovingPoint.prototype, notify);
 
 
 

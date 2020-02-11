@@ -9,27 +9,26 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
-  background: grey;
+  background: #00C1CF;
   overflow: hidden;
   color: #1747ff;
   height: 100%;
 }
 canvas {
-  border: 1px solid white;
+  // border: 1px solid white;
 }
 
 #frame {
-  width: 30%;
-  height: 60%;
-  border: 1px solid red;
-  background: #5b92f8;
+  width: 400px;
+  height: 650px;
+  background: #6BE8CD;
+  border: 3px solid #333B4F; 
 }
 
 #frame2 {
   width: 30%;
   height: 60%;
-  border: 1px solid yellow;
-  background: #433444;
+  background: #3776A1;
 }
 
 

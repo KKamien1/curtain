@@ -1,7 +1,7 @@
 import {Point, MovingPoint, Dot, MovingDot, Factory, RandomDot} from './figures.js' 
 
 
-const [FORWARD, PAUSE, BACK, END] = ['forward', 'pause', 'back', 'end'];
+const [START, FORWARD, PAUSE, BACK, END, RESET] = ['start', 'forward', 'pause', 'back', 'end', 'reset'];
 
 const factory = new Factory();
 
@@ -45,69 +45,78 @@ class Frame {
 
     const { id, clientHeight, clientWidth, clientLeft, clientTop } = div;
 
-    this.id = id;
-    this.canvas= document.createElement("canvas");
-    this.canvas.width = clientWidth;
-    this.canvas.height = clientHeight;
-    this.tl = {x:0, y:0};
-    this.tr = {x: this.canvas.width, y:0};
-    this.bl = {x: 0, y:this.canvas.height};
-    this.br = {x: this.canvas.width, y: this.canvas.height};
-    this.canvas.style.top = `-${clientTop}px`;
-    this.canvas.style.left = `-${clientLeft}px`;
-    this.canvas.style.position = "absolute";
-    this.ctx = this.canvas.getContext("2d");
-    this.ctx.fillStyle = "rgba(216,69,11,.9)";
-    this.color = "rgba(216,69,11,.9)";
+    this.id = id;    
+    this.color = "rgba(179,255,232,.9)";
     this.duration = 500;
     this.fps = 60;
     this.t = 0;
     this.start = null;
-    div.style.position = "relative";
-    div.appendChild(this.canvas);    
-    window.addEventListener('resize', (e) => this.handleResize(e));
+    this.phase = observable(START);
+    this.div = div;
     
-    let context = {ctx:this.ctx, duration:this.duration};
-    const factory = new Factory(context);
-
-    let tl = factory.create('movingPoint' , this.tl, this.tl);
-    let tr = factory.create('movingPoint' , this.tl, this.tr);
-    let bl = factory.create('movingPoint' , this.tl, this.bl);
-    
-    let br = factory.create('movingPoint' , this.br, this.br);
-    let tr2 = factory.create('movingPoint' , this.br, this.tr);
-    let bl2 = factory.create('movingPoint' , this.br, this.bl);
-
-
-    this.topLeft = [tl, tr, bl];
-    this.bottomRight = [br, tr2, bl2];
+    this.div.style.position = "relative";    
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
+    this.createCanvas();
+    this.createElements();
     this.events();
   }
-
+  
   events() {
-    this.canvas.addEventListener("mouseout", ()=> this.notify(PAUSE));
-    this.canvas.addEventListener("mouseenter", ()=> this.notify(FORWARD));
+    window.addEventListener('resize', (e) => this.handleResize(e));
+    this.div.addEventListener("mouseleave", ()=> {
+      console.log(`Mouseout ${this.phase()}`, this.div)
+      this.notify(BACK);
+    });
+    this.div.addEventListener("mouseenter", ()=> {
+      console.log(`Mouseenter ${this.phase()}`)
+      if(this.phase() === START) {
+        if(!this.div.firstElementChild) {
+          this.div.appendChild(this.canvas);
+        }  
+        this.notify(FORWARD)
+      }
+      if(this.phase() === RESET) {
+        if(!this.div.firstElementChild) {
+          this.div.appendChild(this.canvas);
+        }  
+        this.notify(FORWARD)
+      }
+      if(this.phase() === BACK) {
+        if(!this.div.firstElementChild) {
+          this.div.appendChild(this.canvas);
+        }  
+        this.notify(FORWARD)
+      }
+    });
   }
   
   notify (eventType) {
     console.log("Notification:", eventType)
     switch(eventType) {
       case FORWARD:
-        this.phase = FORWARD;
-        this.requestId = requestAnimationFrame(this.loop);
-        console.log('FORWARD');
-        break;
-        case PAUSE: 
-        this.phase = PAUSE;
-        console.log('PAUSE');
-        case END: 
-        this.phase = END;
-        console.log('END');
-        window.cancelAnimationFrame(this.requestId);
         this.t = 0;
+        this.phase(FORWARD);
+        this.requestId = requestAnimationFrame(this.loop);
         break;
+      case BACK:
+        this.t = 0;
+        this.phase(BACK);
+        this.requestId = requestAnimationFrame(this.loop);
+      break;
+      case PAUSE:
+        this.t = 0;
+        this.phase(PAUSE);
+        window.cancelAnimationFrame(this.requestId);
+        break;
+      case END: 
+        this.t = 0;
+        this.phase(END);
+        window.cancelAnimationFrame(this.requestId);
+        this.requestId = undefined;
+        //this.canvas.remove();
+        this.phase(RESET);
+      break;
       default:
         return;
     }
@@ -129,10 +138,12 @@ class Frame {
     this.canvas.height = value;
   }
   handleResize(e) {
-    let {clientHeight, clientWidth } = document.getElementById(this.id);
-    this.setWidth = clientWidth;
-    this.setHeight = clientHeight;
-    this.info;
+    if(this.canvas) {
+      let {clientHeight, clientWidth } = document.getElementById(this.id);
+      this.setWidth = clientWidth;
+      this.setHeight = clientHeight;
+      this.info;
+    }
   }
 
   loop(timestemp) {
@@ -150,13 +161,75 @@ class Frame {
     if (this.t <= this.duration) {
       this.requestId = requestAnimationFrame(this.loop);
     } else if (this.t > this.duration) {
-      this.t = 0;
+      console.log(this.phase());
       this.start = null;
-      window.cancelAnimationFrame(this.requestId);
-      this.requestId = undefined;
-      this.notify(END)
+      this.phase() === FORWARD ? this.notify(PAUSE) : this.notify(END) 
     }
   }
+
+  createCanvas() {
+    const { clientHeight, clientWidth, clientLeft, clientTop } = this.div;
+    this.canvas= document.createElement("canvas");
+    this.canvas.width = clientWidth;
+    this.canvas.height = clientHeight;
+    this.tl = {x:0, y:0};
+    this.tr = {x: this.canvas.width, y:0};
+    this.bl = {x: 0, y:this.canvas.height};
+    this.br = {x: this.canvas.width, y: this.canvas.height};
+    this.canvas.style.top = `-${clientTop}px`;
+    this.canvas.style.left = `-${clientLeft}px`;
+    this.canvas.style.position = "absolute";
+    this.ctx = this.canvas.getContext("2d");
+    this.ctx.fillStyle = this.color;
+    this.ctx.strokeStyle = this.color;
+    this.div.appendChild(this.canvas); 
+  }
+
+  createElements() {
+    this.elements = true;
+    let context = {ctx:this.ctx, duration:this.duration};
+    const factory = new Factory(context);
+
+    let tl = factory.create('movingPoint' , this.tl, this.tl);
+    let tr = factory.create('movingPoint' , this.tl, this.tr);
+    let bl = factory.create('movingPoint' , this.tl, this.bl);
+    
+    let br = factory.create('movingPoint' , this.br, this.br);
+    let tr2 = factory.create('movingPoint' , this.br, this.tr);
+    let bl2 = factory.create('movingPoint' , this.br, this.bl);
+
+
+    this.topLeft = [tl, tr, bl];
+    this.bottomRight = [br, tr2, bl2];
+    [...this.topLeft, ...this.bottomRight].forEach(el => this.phase.subscribe(el));
+  }
+}
+
+function observable(value) {
+  const subscribers = [];
+
+  function notify(value, oldValue) {
+    console.log(`Phase : ${value} after ${oldValue}`)
+    for (let subscriber of subscribers) {
+      subscriber.notify(value);
+    }
+  }
+  
+  function assesor(newValue) {
+    if(newValue && newValue !== value) {
+      let temp = value;
+      value = newValue;
+      notify(value, temp);
+    }
+    return value;
+  }
+
+  assesor.subscribe = function(subscriber) {
+    subscribers.push(subscriber);
+  }
+
+  return assesor;
+
 }
 
 function update(point) {
