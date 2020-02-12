@@ -3,8 +3,6 @@ import {Point, MovingPoint, Dot, MovingDot, Factory, RandomDot} from './figures.
 
 const [START, FORWARD, PAUSE, BACK, END, RESET] = ['start', 'forward', 'pause', 'back', 'end', 'reset'];
 
-const factory = new Factory();
-
 function generate(n, fn, div) {
   const result = [];
   while (n--) {
@@ -31,14 +29,6 @@ const makecanvas = div => {
   animation(points, ctx, size)();
 };
 
-class EventObserver {
-  constructor(subscriber, eventType) {
-    this.subscribers =[subscriber];
-    subscriber.canvas.addEventListener(eventType, function(event) {
-      subscriber.notify(FORWARD);
-    });
-  }
-}
 
 class Frame {
   constructor(div) {
@@ -52,8 +42,7 @@ class Frame {
     this.t = 0;
     this.start = null;
     this.phase = observable(START);
-    this.div = div;
-    
+    this.div = div;    
     this.div.style.position = "relative";    
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
@@ -64,54 +53,26 @@ class Frame {
   
   events() {
     window.addEventListener('resize', (e) => this.handleResize(e));
-    this.div.addEventListener("mouseleave", ()=> {
-      console.log(`Mouseout ${this.phase()}`, this.div)
-      this.notify(BACK);
-    });
-    this.div.addEventListener("mouseenter", ()=> {
-      console.log(`Mouseenter ${this.phase()}`)
-      if(this.phase() === START) {
-        if(!this.div.firstElementChild) {
-          this.div.appendChild(this.canvas);
-        }  
-        this.notify(FORWARD)
-      }
-      if(this.phase() === RESET) {
-        if(!this.div.firstElementChild) {
-          this.div.appendChild(this.canvas);
-        }  
-        this.notify(FORWARD)
-      }
-      if(this.phase() === BACK) {
-        if(!this.div.firstElementChild) {
-          this.div.appendChild(this.canvas);
-        }  
-        this.notify(FORWARD)
-      }
-    });
+    this.div.addEventListener("mouseleave", ()=> this.notify(BACK));
+    this.div.addEventListener("mouseenter", ()=> this.notify(FORWARD));
   }
   
   notify (eventType) {
     console.log("Notification:", eventType)
+    this.phase(eventType);
     switch(eventType) {
       case FORWARD:
-        this.t = 0;
-        this.phase(FORWARD);
         this.requestId = requestAnimationFrame(this.loop);
         break;
       case BACK:
-        this.t = 0;
-        this.phase(BACK);
         this.requestId = requestAnimationFrame(this.loop);
       break;
       case PAUSE:
-        this.t = 0;
-        this.phase(PAUSE);
+        //this.t = 0;
         window.cancelAnimationFrame(this.requestId);
         break;
       case END: 
-        this.t = 0;
-        this.phase(END);
+        //this.t = 0;
         window.cancelAnimationFrame(this.requestId);
         this.requestId = undefined;
         //this.canvas.remove();
@@ -152,16 +113,13 @@ class Frame {
     this.t = timestemp - this.start; 
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.set.forEach(element => element.draw().go(this.t));
+    this.figures.forEach(figure => drawPoligon( this.ctx, figure, this.color)); 
 
-    [...this.topLeft, ...this.bottomRight].forEach(element => element.draw().go(this.t));
-
-    drawPoligon.call( this, this.topLeft, this.color);
-    drawPoligon.call( this, this.bottomRight, this.color);
 
     if (this.t <= this.duration) {
       this.requestId = requestAnimationFrame(this.loop);
     } else if (this.t > this.duration) {
-      console.log(this.phase());
       this.start = null;
       this.phase() === FORWARD ? this.notify(PAUSE) : this.notify(END) 
     }
@@ -172,10 +130,6 @@ class Frame {
     this.canvas= document.createElement("canvas");
     this.canvas.width = clientWidth;
     this.canvas.height = clientHeight;
-    this.tl = {x:0, y:0};
-    this.tr = {x: this.canvas.width, y:0};
-    this.bl = {x: 0, y:this.canvas.height};
-    this.br = {x: this.canvas.width, y: this.canvas.height};
     this.canvas.style.top = `-${clientTop}px`;
     this.canvas.style.left = `-${clientLeft}px`;
     this.canvas.style.position = "absolute";
@@ -184,24 +138,77 @@ class Frame {
     this.ctx.strokeStyle = this.color;
     this.div.appendChild(this.canvas); 
   }
-
+  
   createElements() {
     this.elements = true;
-    let context = {ctx:this.ctx, duration:this.duration};
-    const factory = new Factory(context);
+    this.tl = {x:0, y:0};
+    this.tr = {x: this.canvas.width, y:0};
+    this.bl = {x: 0, y:this.canvas.height};
+    this.br = {x: this.canvas.width, y: this.canvas.height};
 
-    let tl = factory.create('movingPoint' , this.tl, this.tl);
-    let tr = factory.create('movingPoint' , this.tl, this.tr);
-    let bl = factory.create('movingPoint' , this.tl, this.bl);
     
-    let br = factory.create('movingPoint' , this.br, this.br);
-    let tr2 = factory.create('movingPoint' , this.br, this.tr);
-    let bl2 = factory.create('movingPoint' , this.br, this.bl);
+    this.setPoint("A", {x:0, y:0});
+    this.setPoint("B", {x: this.canvas.width, y:0});
+    this.setPoint("C", {x: 0, y:this.canvas.height});
+    this.setPoint("D", {x: this.canvas.width, y: this.canvas.height});
+    this.setPoint("M", {x: this.canvas.width /  2, y: this.canvas.height / 2});
 
+    let context = {ctx:this.ctx, duration:this.duration};
+    const create = new Factory(context);
 
-    this.topLeft = [tl, tr, bl];
-    this.bottomRight = [br, tr2, bl2];
-    [...this.topLeft, ...this.bottomRight].forEach(el => this.phase.subscribe(el));
+    console.log("Point A", this.point("A"));
+
+    this.topLeft = [
+
+      create.point('staticPoint' , this.point("A")),
+      create.point('movingPoint' , this.point("A"), this.point("B")),
+      create.point('movingPoint' , this.point("A"), this.point("C"))
+    
+    ];
+    
+    this.bottomRight = [
+
+      create.point('staticPoint' , this.point("D")),
+      create.point('movingPoint' , this.point("D"), this.point("B")),
+      create.point('movingPoint' , this.point("D"), this.point("C"))
+      
+    ];
+
+    this.topRight = [
+      
+      create.point('staticPoint' , this.point("B")),
+      create.point('movingPoint' , this.point("B"), this.point("A")),
+      create.point('movingPoint' , this.point("B"), this.point("D"))
+      
+    ];
+
+    this.bottomLeft = [
+      
+      create.point('staticPoint' , this.point("C")),
+      create.point('movingPoint' , this.point("C"), this.point("A")),
+      create.point('movingPoint' , this.point("C"), this.point("D"))
+      
+    ];
+
+    this.fikmik = [
+      
+      create.point('staticPoint' , this.point("M")),
+      create.point('movingPoint' , this.point("M"), this.point("C")),
+      create.point('movingPoint' , this.point("M"), this.point("D"))
+      
+    ];
+
+    this.figures = new Set([this.topLeft, this.topRight, this.bottomLeft, this.bottomRight,  this.fikmik]);
+    this.set = [...this.topLeft, ...this.bottomRight, ...this.topRight, ...this.bottomLeft, ...this.fikmik];
+    this.set.forEach(el => this.phase.subscribe(el));
+
+  }
+
+  setPoint(name, point) {
+    this.hasOwnProperty("points") ? this.points.set(name,point) :  this.points = new Map().set(name,point);
+  }
+  point(name) {
+    return this.points.get(name);
   }
 }
 
@@ -306,18 +313,18 @@ function drawLineOfClosest(points) {
   });
 }
 
-function drawPoligon(points, color) {
-  let defaultColor = this.ctx.fillStyle;
-  this.ctx.fillStyle = color || this.ctx.fillStyle;
-  this.ctx.beginPath();
+function drawPoligon(ctx,points, color) {
+  let defaultColor = ctx.fillStyle;
+  ctx.fillStyle = color || ctx.fillStyle;
+  ctx.beginPath();
   points.forEach((point, index) => {
     index === 0
-      ? this.ctx.moveTo(point.x, point.y)
-      : this.ctx.lineTo(point.x, point.y);
+      ? ctx.moveTo(point.x, point.y)
+      : ctx.lineTo(point.x, point.y);
   });
-  this.ctx.closePath();
-  this.ctx.fill();
-  this.ctx.fillStyle = defaultColor;
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = defaultColor;
 }
 
 export {

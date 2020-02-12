@@ -39,7 +39,7 @@ class Point {
   constructor(point) {
     this.x = point.x;
     this.y = point.y;
-    this.radius = 1;
+    this.radius = 0;
   }
   draw() {
     this.ctx.beginPath();
@@ -57,6 +57,17 @@ class Point {
 }
 
 
+class StaticPoint extends Point{
+  constructor(from) {
+    super(from);
+    this.from = from;
+    this.to = from;
+  }
+  go() {
+    this.x = this.from.x;
+    this.y = this.from.y;
+  }
+}
 class MovingPoint extends Point{
   constructor(from, to) {
     super(from);
@@ -68,6 +79,7 @@ class MovingPoint extends Point{
 
 Object.assign(MovingPoint.prototype, moving);
 Object.assign(MovingPoint.prototype, notify);
+Object.assign(StaticPoint.prototype, notify);
 
 
 
@@ -114,15 +126,14 @@ function Factory(context) {
   // this.ctx = ctx;
   // this.time = time;
   // this.duration = duration;
-  this.create = function(type, ...args) {
-    let figure;
+  this.point = function(type, ...args) {
     switch(type) {
-      case ('movingPoint') : figure = Object.assign(new MovingPoint(...args), context); break;
-      case ('movingDot') : figure = new MovingDot(...args); break;
+      case ('movingPoint') : return Object.assign(new MovingPoint(...args), context);   break;
+      case ('staticPoint') : return Object.assign(new StaticPoint(...args), context);   break;
+      case ('movingDot')   : return Object.assign(new MovingDot(...args), context);     break;
       default :
-        return "Factory can't produce";
+        return Object.assign(new StaticPoint(...args), context);
     }
-    return figure;
   }
 }
 
