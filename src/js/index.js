@@ -1,6 +1,5 @@
 import { Point, Dot } from "./figures.js";
 import {
-  makecanvas,
   update,
   randomPoint,
   generate,
@@ -9,7 +8,7 @@ import {
   drawLine,
   drawCircle,
   Frame
-} from "./helpers.js";
+} from "./frame.js";
 
 
 let frame = new Frame(document.getElementById('frame'));
@@ -27,62 +26,6 @@ const parameters = {
   fps: 60,
   color: "rgba(216,69,11,.9)"
 };
-
-function animation(div, t = 0) {
-  let isOpening = true;
-  ctx = canvas(div);
-  dimDiv = dim(div);
-  let r = 100;
-  let center = middle(dimDiv);
-  parameters.startX = dimDiv.width;
-  parameters.startY = dimDiv.height;
-  //const corners = parameters.effect(dim(div))
-  const corners = Corners(dim(div));
-  //const corners = Rects(dim(div))
-  //const corners = Debris(dim(div))
-  const delta = update(parameters);
-  const color = setColor(parameters);
-
-  //const corners = generate(130, pointInDiv, dimDiv)
-  const c = generate(310, Kropa, dimDiv);
-  const corners3 = generate(10, pointInDiv, dimDiv);
-  const doty = generate(10, Dot, dimDiv);
-  const dots1 = generate(100, pointInDistance50, center);
-  const dots2 = generate(50, pointInDistance30, center);
-
-  const pointy = [...c];
-  const dots = dots1.concat(dots2);
-
-  return function loop() {
-    ctx.clearRect(0, 0, dimDiv.width, dimDiv.height);
-
-    pointy.forEach(figure => {
-      drawCircle(figure, figure.size, "rgba(216,69,11,.6)");
-      //figure.update(slightVerticalRandom, t);
-      figure.slightVerticalRandom();
-      figure.slightHorizontalRandom();
-      figure.isIn();
-      randomUpdate(figure, 20, 18);
-      //drawPoligon(figure(isOpening == true ? delta.up(t) : delta.down(t)), color(t));
-    });
-    doty.forEach(figure => {
-      figure.draw(ctx);
-    });
-    if (t <= parameters.duration) {
-      t += 1000 / parameters.fps;
-      requestAnimationFrame(loop);
-    } else if (t > parameters.duration) {
-      t = 0;
-      if (isOpening) {
-        console.log(div);
-        showOverlay(div);
-        isOpening = false;
-        requestAnimationFrame(loop);
-      }
-      return;
-    }
-  };
-}
 
 function showOverlay(div) {
   div.querySelector(".overlay").classList.add("fadeIn");
@@ -104,17 +47,6 @@ function dim(el) {
   };
 }
 
-function canvas(div, color = "white") {
-  let c = document.createElement("canvas");
-  Object.assign(c, dim(div));
-  div.style.position = "relative";
-  c.style.position = "absolute";
-  c.style.top = c.style.left = 0;
-  ctx = c.getContext("2d");
-  ctx.fillStyle = color;
-  div.appendChild(c);
-  return ctx;
-}
 
 function drawPoligon(points, color) {
   defaultColor = ctx.fillStyle;
