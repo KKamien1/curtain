@@ -119,9 +119,6 @@ function plusMinus(num) {
 }
 
 function Factory(context) {
-  // this.ctx = ctx;
-  // this.time = time;
-  // this.duration = duration;
   this.point = function(type, ...args) {
     switch(type) {
       case ('movingPoint') : return Object.assign(new MovingPoint(...args), context);   break;
@@ -133,5 +130,34 @@ function Factory(context) {
   }
 }
 
-export { Point, MovingPoint, Dot, MovingDot, Factory, RandomDot };
+
+
+class Points {
+  constructor({ clientWidth, clientHeight }) {
+    this.points = new Map();
+    this.set("A", { x: 0, y: 0 });
+    this.set("B", { x: clientWidth, y: 0 });
+    this.set("C", { x: 0, y: clientHeight });
+    this.set("D", { x: clientWidth, y: clientHeight });
+    this.set("M", { x: clientWidth / 2, y: clientHeight / 2 });
+    this.set("L", { x: 0, y: clientHeight / 2 });
+    this.set("R", { x: clientWidth, y: clientHeight / 2 });
+  }
+
+  set(symbol, point) {
+    this.points.set(symbol,point);
+  }
+
+  get() {
+    return this.points;
+  }
+
+}
+
+
+
+
+
+
+export { Point, Points, MovingPoint, Dot, MovingDot, Factory, RandomDot };
 

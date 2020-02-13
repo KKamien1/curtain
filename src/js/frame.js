@@ -1,19 +1,8 @@
-import {Factory} from './figures.js' 
+import {Factory, Points} from './figures.js' 
 
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
 
-<<<<<<< HEAD:src/js/helpers.js
-=======
-let sample = {
-  notify() {
-    console.log("sth");
-  }
-}
-
-sample.hasOwnProperty("notify") //?  
-
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
 function generate(n, fn, div) {
   const result = [];
   while (n--) {
@@ -26,23 +15,6 @@ export const dim = ({ clientHeight, clientWidth }) => ({
   height: clientHeight
 });
 
-<<<<<<< HEAD:src/js/helpers.js
-const makecanvas = div => {
-  const size = dim(div);
-  const ctx = canvas(div);
-  ctx.strokeStyle = "rgba(200,69,200,.6)";
-  const color = "rgba(216,69,11,.6)";
-  const points = generate(20, dotInDiv, size, 5, 5, color);
-  const cursor = new Cursor(div, points.slice(0, 10));
-  ["click"].forEach(evt =>
-    box2.addEventListener(evt, cursor.dispatchEvent, false)
-  );
-  findClosest(points);
-  animation(points, ctx, size)();
-};
-
-=======
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
 
 class Frame {
   constructor(div) {
@@ -57,15 +29,11 @@ class Frame {
     this.start = null;
     this.color = "rgba(179,255,232,.9)";
     this.phase = observable(START);
-<<<<<<< HEAD:src/js/helpers.js
-    this.div = div;    
-=======
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
     this.div.style.position = "relative";    
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.setPoints();
+    this.points = new Points(this.div).get();  
     this.createElements();
     this.events();
   }
@@ -80,27 +48,6 @@ class Frame {
     console.log("Notification:", eventType)
     this.phase(eventType);
     switch(eventType) {
-<<<<<<< HEAD:src/js/helpers.js
-      case FORWARD:
-        this.requestId = requestAnimationFrame(this.loop);
-        break;
-      case BACK:
-        this.requestId = requestAnimationFrame(this.loop);
-      break;
-      case PAUSE:
-        //this.t = 0;
-        window.cancelAnimationFrame(this.requestId);
-        break;
-      case END: 
-        //this.t = 0;
-        window.cancelAnimationFrame(this.requestId);
-        this.requestId = undefined;
-        //this.canvas.remove();
-        this.phase(RESET);
-      break;
-      default:
-        return;
-=======
 
       case FORWARD: this.requestId = requestAnimationFrame(this.loop); break;
       case BACK:    this.requestId = requestAnimationFrame(this.loop); break;
@@ -109,7 +56,6 @@ class Frame {
       
       default: return;
 
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
     }
   }
 
@@ -149,37 +95,17 @@ class Frame {
 
     if (this.t <= this.duration) {
       this.requestId = requestAnimationFrame(this.loop);
-<<<<<<< HEAD:src/js/helpers.js
-    } else if (this.t > this.duration) {
-=======
     } else {
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
       this.start = null;
       this.phase() === FORWARD ? this.notify(PAUSE) : this.notify(END) 
     }
   }
 
-  setPoints() {
-    const { clientWidth, clientHeight } = this.div;
-    this.setPoint("A", { x: 0, y: 0 });
-    this.setPoint("B", { x: clientWidth, y: 0 });
-    this.setPoint("C", { x: 0, y: clientHeight });
-    this.setPoint("D", { x: clientWidth, y: clientHeight });
-    this.setPoint("M", { x: clientWidth / 2, y: clientHeight / 2 });
-    this.setPoint("L", { x: 0, y: clientHeight / 2 });
-    this.setPoint("R", { x: clientWidth, y: clientHeight / 2 });
-  }
-  
   createCanvas() {
     const { clientHeight, clientWidth } = this.div;
     this.canvas= document.createElement("canvas");
     this.canvas.width = clientWidth;
     this.canvas.height = clientHeight;
-<<<<<<< HEAD:src/js/helpers.js
-    this.canvas.style.top = `-${clientTop}px`;
-    this.canvas.style.left = `-${clientLeft}px`;
-=======
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
     this.canvas.style.position = "absolute";
     this.ctx = this.canvas.getContext("2d");
     this.ctx.fillStyle = this.color;
@@ -188,45 +114,18 @@ class Frame {
   }
   
   createElements() {
-<<<<<<< HEAD:src/js/helpers.js
-    this.elements = true;
-    this.tl = {x:0, y:0};
-    this.tr = {x: this.canvas.width, y:0};
-    this.bl = {x: 0, y:this.canvas.height};
-    this.br = {x: this.canvas.width, y: this.canvas.height};
-
-    
-    this.setPoint("A", {x:0, y:0});
-    this.setPoint("B", {x: this.canvas.width, y:0});
-    this.setPoint("C", {x: 0, y:this.canvas.height});
-    this.setPoint("D", {x: this.canvas.width, y: this.canvas.height});
-    this.setPoint("M", {x: this.canvas.width /  2, y: this.canvas.height / 2});
-
-    let context = {ctx:this.ctx, duration:this.duration};
-    const create = new Factory(context);
-
-    console.log("Point A", this.point("A"));
-
-=======
 
     const context = {ctx:this.ctx, duration:this.duration};
     const create = new Factory(context);
 
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
     this.topLeft = [
 
       create.point('staticPoint' , this.point("A")),
       create.point('movingPoint' , this.point("A"), this.point("B")),
       create.point('movingPoint' , this.point("A"), this.point("C"))
-<<<<<<< HEAD:src/js/helpers.js
     
     ];
     
-=======
-    
-    ];
-    
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
     this.bottomRight = [
 
       create.point('staticPoint' , this.point("D")),
@@ -259,19 +158,17 @@ class Frame {
       
     ];
 
-    this.figures = new Set([this.topLeft, this.topRight, this.bottomLeft, this.bottomRight,  this.fikmik]);
-    this.set = [...this.topLeft, ...this.bottomRight, ...this.topRight, ...this.bottomLeft, ...this.fikmik];
+    this.whatt = [
+      
+      create.point('staticPoint' , this.point("L")),
+      create.point('movingPoint' , this.point("D"), this.point("B")),
+      create.point('movingPoint' , this.point("C"), this.point("M"))
+      
+    ];
+
+    this.figures = new Set([this.topLeft, this.topRight, this.bottomLeft, this.bottomRight,  this.fikmik, this.whatt ]);
+    this.set = [...this.topLeft, ...this.bottomRight, ...this.topRight, ...this.bottomLeft, ...this.fikmik, ...this.whatt];
     this.set.forEach(el => this.phase.subscribe(el));
-<<<<<<< HEAD:src/js/helpers.js
-
-  }
-
-  setPoint(name, point) {
-    this.hasOwnProperty("points") ? this.points.set(name,point) :  this.points = new Map().set(name,point);
-  }
-  point(name) {
-    return this.points.get(name);
-=======
 
   }
 
@@ -285,7 +182,6 @@ class Frame {
     
     return this.points.get(name);
   
->>>>>>> d5e3ca1eb13df4b98d193c344ebba2a27f1a9a26:src/js/frame.js
   }
 }
 
@@ -293,7 +189,6 @@ function observable(value) {
   const subscribers = [];
 
   function notify(value, oldValue) {
-    console.log(`Phase : ${value} after ${oldValue}`)
     for (let subscriber of subscribers) {
       subscriber.notify(value);
     }
