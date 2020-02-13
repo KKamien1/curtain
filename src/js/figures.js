@@ -1,10 +1,6 @@
 import {Easing} from './easing.js';
 
-
-
 const sampleFunct = (start, end, t, d, s) => Easing.get("easeInOutCirc", start, end, t, d, s)
-
-const DIRECTIONS = new Set(["FORWARD", "BACK"]); 
 
 const moving = {
   go(t) {
@@ -28,7 +24,7 @@ const moving = {
 const notify = {
   notify(value) {
     this.direction = value;
-    if(value === 'reset') {
+    if(value === 'end') {
         this.x = this.from.x;
         this.y = this.from.y;
     }
