@@ -1,4 +1,4 @@
-import {Factory, Points} from './figures.js' 
+import {Creator, Points} from './figures.js' 
 
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
@@ -116,53 +116,53 @@ class Frame {
   createElements() {
 
     const context = {ctx:this.ctx, duration:this.duration};
-    const create = new Factory(context);
+    const creator = new Creator(context);
 
     this.topLeft = [
 
-      create.point('staticPoint' , this.point("A")),
-      create.point('movingPoint' , this.point("A"), this.point("B")),
-      create.point('movingPoint' , this.point("A"), this.point("C"))
+      creator.create('staticPoint' , this.point("A")),
+      creator.create('movingPoint' , this.point("A"), this.point("B")),
+      creator.create('movingPoint' , this.point("A"), this.point("C"))
     
     ];
     
     this.bottomRight = [
 
-      create.point('staticPoint' , this.point("D")),
-      create.point('movingPoint' , this.point("D"), this.point("B")),
-      create.point('movingPoint' , this.point("D"), this.point("C"))
+      creator.create('staticPoint' , this.point("D")),
+      creator.create('movingPoint' , this.point("D"), this.point("B")),
+      creator.create('movingPoint' , this.point("D"), this.point("C"))
       
     ];
 
     this.topRight = [
       
-      create.point('staticPoint' , this.point("B")),
-      create.point('movingPoint' , this.point("B"), this.point("A")),
-      create.point('movingPoint' , this.point("B"), this.point("D"))
+      creator.create('staticPoint' , this.point("B")),
+      creator.create('movingPoint' , this.point("B"), this.point("A")),
+      creator.create('movingPoint' , this.point("B"), this.point("D"))
       
     ];
 
     this.bottomLeft = [
       
-      create.point('staticPoint' , this.point("C")),
-      create.point('movingPoint' , this.point("C"), this.point("A")),
-      create.point('movingPoint' , this.point("C"), this.point("D"))
+      creator.create('staticPoint' , this.point("C")),
+      creator.create('movingPoint' , this.point("C"), this.point("A")),
+      creator.create('movingPoint' , this.point("C"), this.point("D"))
       
     ];
 
     this.fikmik = [
       
-      create.point('staticPoint' , this.point("M")),
-      create.point('movingPoint' , this.point("M"), this.point("C")),
-      create.point('movingPoint' , this.point("M"), this.point("D"))
+      creator.create('staticPoint' , this.point("M")),
+      creator.create('movingPoint' , this.point("M"), this.point("C")),
+      creator.create('movingPoint' , this.point("M"), this.point("D"))
       
     ];
 
     this.whatt = [
       
-      create.point('staticPoint' , this.point("L")),
-      create.point('movingPoint' , this.point("D"), this.point("B")),
-      create.point('movingPoint' , this.point("C"), this.point("M"))
+      creator.create('staticPoint' , this.point("L")),
+      creator.create('movingPoint' , this.point("D"), this.point("B")),
+      creator.create('movingPoint' , this.point("C"), this.point("M"))
       
     ];
 

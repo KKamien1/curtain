@@ -118,17 +118,25 @@ function plusMinus(num) {
   return Math.round(Math.random()) ? num : -num;
 }
 
-function Factory(context) {
-  this.point = function(type, ...args) {
-    switch(type) {
-      case ('movingPoint') : return Object.assign(new MovingPoint(...args), context);   break;
-      case ('staticPoint') : return Object.assign(new StaticPoint(...args), context);   break;
-      case ('movingDot')   : return Object.assign(new MovingDot(...args), context);     break;
-      default :
-        return Object.assign(new StaticPoint(...args), context);
-    }
+class Creator {
+  constructor(context) {
+    this.factories = {}
+    this.context = context;
+    this.add('staticPoint', StaticPoint);
+    this.add('movingPoint', MovingPoint );
+    this.add('movingDot', MovingDot);
+  }
+
+  add(type, constructor) {
+    this.factories[type] = constructor;
+  }
+  
+  create(type, ...props) {
+    return Object.assign(new this.factories[type](...props), this.context);
   }
 }
+
+
 
 
 
@@ -159,5 +167,5 @@ class Points {
 
 
 
-export { Point, Points, MovingPoint, Dot, MovingDot, Factory, RandomDot };
+export { Point, Points, MovingPoint, Dot, MovingDot, Creator, RandomDot };
 
