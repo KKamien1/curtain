@@ -11,8 +11,16 @@ import {
 } from "./frame.js";
 
 
-let frame = new Frame(document.getElementById('frame'));
-let frame2 = new Frame(document.getElementById('frame2'));
+const div = document.getElementById('frame')
+const div2 = document.getElementById('frame2')
+
+const options = {
+  color: 'rgba(179,255,232,.9)',
+  duration: 1000
+}
+
+let frame = new Frame({div, ...options});
+let frame2 = new Frame({div:div2, ...options, duration:300});
 
 
 

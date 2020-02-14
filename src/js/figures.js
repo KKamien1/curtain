@@ -36,6 +36,7 @@ class Point {
     this.x = point.x;
     this.y = point.y;
     this.radius = 0;
+    this.position = point.position;
   }
   draw() {
     this.ctx.beginPath();
@@ -43,12 +44,6 @@ class Point {
     this.ctx.closePath();
     this.ctx.fill();
     return this;
-  }
-
-  randomUpdate(max = 5, min = 0, t) {
-    this.x += plusMinus(randomOf(max, min));
-    this.y += plusMinus(randomOf(max, min));
-    return this
   }
 }
 
@@ -136,28 +131,67 @@ class Creator {
   }
 }
 
-
-
-
-
 class Points {
-  constructor({ clientWidth, clientHeight }) {
+  constructor(div) {
+    this.div = div;
+    this.clientHeight = this.div.clientHeight;
+    this.clientWidth = this.div.clientHeight;
     this.points = new Map();
-    this.set("A", { x: 0, y: 0 });
-    this.set("B", { x: clientWidth, y: 0 });
-    this.set("C", { x: 0, y: clientHeight });
-    this.set("D", { x: clientWidth, y: clientHeight });
-    this.set("M", { x: clientWidth / 2, y: clientHeight / 2 });
-    this.set("L", { x: 0, y: clientHeight / 2 });
-    this.set("R", { x: clientWidth, y: clientHeight / 2 });
+    this.set("A", { x: 0, y: 0, position: function() {this.from.x = 0; this.from.y = 0}});
+    this.set("B", { x: this.clientWidth, y: 0, 
+      position: function({clientWidth}) {
+        this.from.x = clientWidth;
+        this.from.y = 0;
+      } 
+    });
+    this.set("C", { 
+      x: 0, 
+      y: this.clientHeight,
+      position: function({clientHeight}) {
+        this.from.x = 0;
+        this.from.y = clientHeight;
+      } 
+    });
+    this.set("D", { 
+      x: this.clientWidth, 
+      y: this.clientHeight, 
+      position: function ({clientHeight, clientWidth}) {
+        this.from.x = clientWidth;
+        this.from.y = clientHeight;
+      }
+    });
+    this.set("M", { 
+      x: this.clientWidth / 2, 
+      y: this.clientHeight / 2, 
+      position: function ({clientHeight, clientWidth}) {
+        this.from.x = clientWidth/2; 
+        this.from.y = clientHeight / 2;
+      }
+    });
+    this.set("L", { 
+      x: 0, 
+      y: this.clientHeight / 2,
+      position: function({clientHeight}) {
+        this.from.x = 0;
+        this.from.y = clientHeight / 2
+      } 
+    });
+    this.set("R", { 
+      x: this.clientWidth, 
+      y: this.clientHeight / 2, 
+      position: function({clientHeight, clientWidth}) {
+        this.from.x = clientWidth;
+        this.from.y = clientHeight / 2
+      } 
+    });
   }
 
   set(symbol, point) {
     this.points.set(symbol,point);
   }
 
-  get() {
-    return this.points;
+  get(name) {
+    return this.points.get(name);
   }
 
 }
