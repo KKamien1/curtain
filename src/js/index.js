@@ -11,17 +11,27 @@ import {
 } from "./frame.js";
 
 
-const div = document.getElementById('frame')
-const div2 = document.getElementById('frame2')
+const div = document.getElementById('frame1') //? 
+const div2 = document.getElementById('frame2') //?
+
+const divs = document.querySelectorAll('.frame') //? 
 
 const options = {
   color: 'rgba(179,255,232,.9)',
-  duration: 1000
+  duration: 300
 }
 
-let frame = new Frame({div, ...options});
-let frame2 = new Frame({div:div2, ...options, duration:300});
 
+
+// let frame = new Frame({div, ...options});
+// let frame2 = new Frame({div:div2, ...options, duration:300});
+
+divs.forEach(el => {
+  
+  console.log(el);
+  new Frame({div:el, ...options})
+  
+});
 
 
 

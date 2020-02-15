@@ -18,10 +18,9 @@ export const dim = ({ clientHeight, clientWidth }) => ({
 
 class Frame {
   constructor({div, duration, color}) {
-    const {id, clientHeight, clientWidth, clientLeft, clientTop} = div;
 
-    this.id = id;
     this.div = div;
+    this.id = div.id;
     this.duration = duration || 500;
     this.fps = 60;
     this.t = 0;
