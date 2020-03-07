@@ -32,10 +32,10 @@ const notify = {
 }
 
 class Point {
-  constructor(point) {
+  constructor(point, radius) {
     this.x = point.x;
     this.y = point.y;
-    this.radius = 0;
+    this.radius = radius || 0;
     this.position = point.position;
   }
   draw() {
@@ -49,8 +49,8 @@ class Point {
 
 
 class StaticPoint extends Point{
-  constructor(from) {
-    super(from);
+  constructor(from, radius) {
+    super(from, radius);
     this.from = from;
     this.to = from;
   }
@@ -69,15 +69,18 @@ class MovingPoint extends Point{
 }
 
 Object.assign(MovingPoint.prototype, moving);
-Object.assign(MovingPoint.prototype, notify);
-Object.assign(StaticPoint.prototype, notify);
+Object.assign(Point.prototype, notify);
 
 
 
 class Dot extends Point {
-  constructor(radius, ...props) {
-    super(...props);
+  constructor(point, radius) {
+    super(point);
+    this.from = point;
+    this.to = point;
     this.radius = radius;
+  }
+  go() {
   }
 }
 
@@ -118,6 +121,7 @@ class Creator {
     this.factories = {}
     this.context = context;
     this.add('staticPoint', StaticPoint);
+    this.add('Dot', Dot);
     this.add('movingPoint', MovingPoint );
     this.add('movingDot', MovingDot);
   }
@@ -134,8 +138,8 @@ class Creator {
 class Points {
   constructor(div) {
     this.div = div;
+    this.clientWidth = this.div.clientWidth;
     this.clientHeight = this.div.clientHeight;
-    this.clientWidth = this.div.clientHeight;
     this.points = new Map();
     this.set("A", { x: 0, y: 0, position: function() {this.from.x = 0; this.from.y = 0}});
     this.set("B", { x: this.clientWidth, y: 0, 

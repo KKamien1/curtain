@@ -18,7 +18,6 @@ export const dim = ({ clientHeight, clientWidth }) => ({
 
 class Frame {
   constructor({div, duration, color}) {
-
     this.div = div;
     this.id = div.id;
     this.duration = duration || 500;
@@ -37,9 +36,9 @@ class Frame {
   }
 
   events() {
-    window.addEventListener('resize', e => this.handleResize(e));
-    this.div.addEventListener('mouseleave', () => this.notify(BACK));
     this.div.addEventListener('mouseenter', () => this.notify(FORWARD));
+    this.div.addEventListener('mouseleave', () => this.notify(BACK));
+    window.addEventListener('resize', e => this.handleResize(e));
   }
 
   notify(eventType) {
@@ -72,9 +71,16 @@ class Frame {
 
   handleResize() {
     if (this.canvas) {
-      let {clientHeight, clientWidth} = this.div;
-      this.setSize = {clientWidth, clientHeight};
-      this.set.forEach(point => point.position({clientHeight, clientWidth}))
+      let { clientWidth, clientHeight} = this.div; 
+      this.canvas.width = clientWidth;
+      this.canvas.height = clientHeight;
+      this.ctx.fillStyle = this.color;
+      this.set.forEach(point => {
+        point.position({clientHeight, clientWidth});
+        point.go(this.duration);
+        point.ctx = this.ctx;
+      });
+      this.draw();
       this.info;
     }
   }
@@ -83,9 +89,7 @@ class Frame {
     if (!this.start) this.start = timestemp;
     this.t = timestemp - this.start;
 
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.set.forEach(element => element.draw().go(this.t));
-    this.figures.forEach(figure => drawPoligon(this.ctx, figure, this.color));
+    this.draw();
 
     if (this.t <= this.duration) {
       this.requestId = requestAnimationFrame(this.loop);
@@ -95,8 +99,13 @@ class Frame {
     }
   }
 
-  createCanvas() {
-    
+  draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.set.forEach(element => element.draw().go(this.t));
+    this.figures.forEach(figure => drawPoligon(this.ctx, figure, this.color));
+  }
+
+  createCanvas() {    
     this.canvas = document.createElement('canvas');
     this.canvas.width = this.div.clientWidth;
     this.canvas.height = this.div.clientHeight;
@@ -104,6 +113,7 @@ class Frame {
     this.ctx = this.canvas.getContext('2d');
     this.ctx.fillStyle = this.color;
     this.ctx.strokeStyle = this.color;
+    this.ctx.save();
     this.div.appendChild(this.canvas);
   }
 
@@ -111,7 +121,35 @@ class Frame {
     const context = {ctx: this.ctx, duration: this.duration};
     const creator = new Creator(context);
 
-    this.topLeft = [
+    this.staticPoints = [
+      creator.create('staticPoint', this.points.get('M'), 50),
+      creator.create('staticPoint', this.points.get('C'), 20),
+      creator.create('staticPoint', this.points.get('D'), 20),
+    ];
+
+    this.figure = [
+      creator.create('staticPoint', this.points.get('A')),
+      creator.create('movingPoint', this.points.get('A'), this.points.get('B')),
+      creator.create('movingPoint', this.points.get('A'), this.points.get('C')),
+    ]
+
+    
+    this.figures = new Set([
+      this.figure
+    ]);
+
+    this.set = [
+      ...this.staticPoints,
+      ...this.figure,
+    ];
+
+    this.set.forEach(el => this.phase.subscribe(el));
+  }
+  createCorners() {
+    const context = {ctx: this.ctx, duration: this.duration};
+    const creator = new Creator(context);
+
+    this.staticPoints = [
       creator.create('staticPoint', this.points.get('A')),
       creator.create('movingPoint', this.points.get('A'), this.points.get('B')),
       creator.create('movingPoint', this.points.get('A'), this.points.get('C'))
@@ -148,7 +186,7 @@ class Frame {
     ];
 
     this.figures = new Set([
-      this.topLeft,
+      this.staticPoints,
       this.topRight,
       this.bottomLeft,
       this.bottomRight,
@@ -156,7 +194,7 @@ class Frame {
     ]);
 
     this.set = [
-      ...this.topLeft,
+      ...this.staticPoints,
       ...this.bottomRight,
       ...this.topRight,
       ...this.bottomLeft,

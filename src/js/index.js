@@ -11,9 +11,6 @@ import {
 } from "./frame.js";
 
 
-const div = document.getElementById('frame1') //? 
-const div2 = document.getElementById('frame2') //?
-
 const divs = document.querySelectorAll('.frame') //? 
 
 const options = {
@@ -21,64 +18,8 @@ const options = {
   duration: 300
 }
 
+divs.forEach(el => new Frame({div:el, ...options}));
 
-
-// let frame = new Frame({div, ...options});
-// let frame2 = new Frame({div:div2, ...options, duration:300});
-
-divs.forEach(el => {
-  
-  console.log(el);
-  new Frame({div:el, ...options})
-  
-});
-
-
-
-const parameters = {
-  ease: "easeInQuart",
-  effect: Corners,
-  stop: 0,
-  time: 0,
-  duration: 100000,
-  fps: 60,
-  color: "rgba(216,69,11,.9)"
-};
-
-function showOverlay(div) {
-  div.querySelector(".overlay").classList.add("fadeIn");
-  div.querySelector(".overlay").style.display = "block";
-}
-
-
-function removecanvas(e) {
-  console.log("div outside", parameters);
-  e.target.querySelector(".overlay").style.display = "none";
-
-  Array.from(e.target.querySelectorAll("canvas")).forEach(el => el.remove());
-}
-
-function dim(el) {
-  return {
-    width: el.getBoundingClientRect().width,
-    height: el.getBoundingClientRect().height
-  };
-}
-
-
-function drawPoligon(points, color) {
-  defaultColor = ctx.fillStyle;
-  ctx.fillStyle = color || ctx.fillStyle;
-  ctx.beginPath();
-  points.forEach((point, index) => {
-    index === 0
-      ? ctx.moveTo(point[0], point[1])
-      : ctx.lineTo(point[0], point[1]);
-  });
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = defaultColor;
-}
 
 
 function setColor(parameters) {
@@ -106,30 +47,6 @@ function setColor(parameters) {
       .concat(opacity)
       .join(",")})`;
   };
-}
-
-function Corners(div) {
-  function top_left(size) {
-    return [[0, 0], [size.x, 0], [0, size.y]];
-  }
-
-  function top_right(size) {
-    return [[div.width, 0], [div.width - size.x, 0], [div.width, size.y]];
-  }
-
-  function bottom_right(size) {
-    return [
-      [div.width, div.height],
-      [div.width - size.x, div.height],
-      [div.width, div.height - size.y]
-    ];
-  }
-
-  function bottom_left(size) {
-    return [[0, div.height], [size.x, div.height], [0, div.height - size.y]];
-  }
-
-  return [top_left, top_right, bottom_left, bottom_right];
 }
 
 function Rects(div) {
