@@ -1,19 +1,7 @@
-import {Creator, Points} from './figures.js' 
+import {CreateCorners} from './figures.js' 
 
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
-
-function generate(n, fn, div) {
-  const result = [];
-  while (n--) {
-    result.push(new fn(div));
-  }
-  return result;
-}
-export const dim = ({ clientHeight, clientWidth }) => ({
-  width: clientWidth,
-  height: clientHeight
-});
 
 
 class Frame {
@@ -30,18 +18,18 @@ class Frame {
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.points = new Points(this.div);
-    this.createCorners();
-    this.set.forEach(el => this.phase.subscribe(el));
+    this.figures = new CreateCorners(div).get();
+    this.set = [...Array.from(this.figures)].flat();
+    this.set.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
     this.events();
   }
-
+  
   events() {
     this.div.addEventListener('mouseenter', () => {this.notify(FORWARD)});
     this.div.addEventListener('mouseleave', () => this.notify(BACK));
     window.addEventListener('resize', e => this.handleResize(e));
   }
-
+  
   notify(eventType) {
     console.log('Notification:', eventType);
     this.phase(eventType);
@@ -54,44 +42,13 @@ class Frame {
       default: return;
     }
   }
-
-  get info() {
-    const info = `
-      id:${this.id} ${this.div.clientWidth} x ${this.div.clientHeight}
-      canvas: ${this.canvas.width} x ${this.canvas.height}
-
-      `;
-    console.log(info);
-    return info;
-  }
-
-  set setSize({clientWidth, clientHeight}) {
-    this.canvas.width = clientWidth;
-    this.canvas.height = clientHeight;
-  }
-
-  handleResize() {
-    if (this.canvas) {
-      let { clientWidth, clientHeight} = this.div; 
-      this.canvas.width = clientWidth;
-      this.canvas.height = clientHeight;
-      this.ctx.fillStyle = this.color;
-      this.set.forEach(point => {
-        point.position({clientHeight, clientWidth});
-        point.go(this.duration);
-        point.ctx = this.ctx;
-      });
-      this.draw();
-      this.info;
-    }
-  }
-
+  
   loop(timestemp) {
     if (!this.start) this.start = timestemp;
     this.t = timestemp - this.start;
-
+    
     this.draw();
-
+    
     if (this.t <= this.duration) {
       this.requestId = requestAnimationFrame(this.loop);
     } else {
@@ -99,17 +56,16 @@ class Frame {
       this.phase() === FORWARD ? this.notify(PAUSE) : this.notify(END);
     }
   }
-
+  
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.set.forEach(element => element.draw().go(this.t));
     this.figures.forEach(figure => drawPoligon(this.ctx, figure, this.color));
   }
-
-  createCanvas() {    
+  
+  createCanvas() {
     this.canvas = document.createElement('canvas');
-    this.canvas.width = this.div.clientWidth;
-    this.canvas.height = this.div.clientHeight;
+    this.setSize = this.div;
     this.canvas.style.position = 'absolute';
     this.ctx = this.canvas.getContext('2d');
     this.ctx.fillStyle = this.color;
@@ -118,101 +74,39 @@ class Frame {
     this.div.appendChild(this.canvas);
   }
 
-  createElements() {
-    const context = {ctx: this.ctx, duration: this.duration};
-    const creator = new Creator(context);
-
-    this.staticPoints = [
-      creator.create('staticPoint', this.points.get('M'), 50),
-      creator.create('staticPoint', this.points.get('C'), 20),
-      creator.create('staticPoint', this.points.get('D'), 20),
-    ];
-
-    this.figure = [
-      creator.create('staticPoint', this.points.get('A')),
-      creator.create('movingPoint', this.points.get('A'), this.points.get('B')),
-      creator.create('movingPoint', this.points.get('A'), this.points.get('C')),
-    ]
-
-    
-    this.figures = new Set([
-      this.figure
-    ]);
-
-    this.set = [
-      ...this.staticPoints,
-      ...this.figure,
-    ];
-
-    this.set.forEach(el => this.phase.subscribe(el));
-  }
-  createCorners() {
-    const context = {ctx: this.ctx, duration: this.duration};
-    const creator = new Creator(context);
-
-    this.staticPoints = [
-      creator.create('staticPoint', this.points.get('A')),
-      creator.create('movingPoint', this.points.get('A'), this.points.get('B')),
-      creator.create('movingPoint', this.points.get('A'), this.points.get('C'))
-    ];
-
-    this.bottomRight = [
-      creator.create('staticPoint', this.points.get('D')),
-      creator.create('movingPoint', this.points.get('D'), this.points.get('B')),
-      creator.create('movingPoint', this.points.get('D'), this.points.get('C'))
-    ];
-
-    this.topRight = [
-      creator.create('staticPoint', this.points.get('B')),
-      creator.create('movingPoint', this.points.get('B'), this.points.get('A')),
-      creator.create('movingPoint', this.points.get('B'), this.points.get('D'))
-    ];
-
-    this.bottomLeft = [
-      creator.create('staticPoint', this.points.get('C')),
-      creator.create('movingPoint', this.points.get('C'), this.points.get('A')),
-      creator.create('movingPoint', this.points.get('C'), this.points.get('D'))
-    ];
-
-    this.fikmik = [
-      creator.create('staticPoint', this.points.get('M')),
-      creator.create('movingPoint', this.points.get('M'), this.points.get('C')),
-      creator.create('movingPoint', this.points.get('M'), this.points.get('D'))
-    ];
-
-    this.figures = new Set([
-      this.staticPoints,
-      this.topRight,
-      this.bottomLeft,
-      this.bottomRight,
-      this.fikmik
-    ]);
-
-    this.set = [
-      ...this.staticPoints,
-      ...this.bottomRight,
-      ...this.topRight,
-      ...this.bottomLeft,
-      ...this.fikmik
-    ];
-
-    
+  handleResize() {
+    if (this.canvas) {
+      this.setSize = this.div;
+      this.ctx.fillStyle = this.color;
+      this.set.forEach(point => {
+        point.position(this.div);
+        point.go(this.duration);
+        point.ctx = this.ctx;
+      });
+      this.draw();
+      this.info;
+    }
   }
 
-  setPoint(name, point) {
-    this.hasOwnProperty('points')
-      ? this.points.set(name, point)
-      : (this.points = new Map().set(name, point));
+  get info() {
+    const info = `
+    id:${this.id} ${this.div.clientWidth} x ${this.div.clientHeight}
+    canvas: ${this.canvas.width} x ${this.canvas.height}
+    `;
+    console.log(info);
+    return info;
   }
-
-  points(name) {
-    return this.points.get(name);
+  
+  set setSize({clientWidth, clientHeight}) {
+    this.canvas.width = clientWidth;
+    this.canvas.height = clientHeight;
   }
+  
 }
 
 function observable(value) {
   const subscribers = [];
-
+  
   function notify(value, oldValue) {
     for (let subscriber of subscribers) {
       subscriber.notify(value);
@@ -226,24 +120,24 @@ function observable(value) {
     }
     return value;
   }
-
+  
   assesor.subscribe = function(subscriber) {
     subscribers.push(subscriber);
   }
-
+  
   return assesor;
-
+  
 }
 
 function update(point) {
   point.x =
-    point.destination.clientX > point.x
-      ? point.x + point.speed * point.acceleration
-      : point.x - point.speed * point.acceleration;
+  point.destination.clientX > point.x
+  ? point.x + point.speed * point.acceleration
+  : point.x - point.speed * point.acceleration;
   point.y =
-    point.destination.clientY > point.y
-      ? point.y + point.speed * point.acceleration
-      : point.y - point.speed * point.acceleration;
+  point.destination.clientY > point.y
+  ? point.y + point.speed * point.acceleration
+  : point.y - point.speed * point.acceleration;
   return point;
 }
 function randomPoint(dimentions) {
@@ -276,7 +170,7 @@ function findClosest(points) {
     points.forEach(pointB => distanceValues.push(distance(point, pointB)));
     return distanceValues;
   });
-
+  
   const closest = distances.map(distanceArr =>
     distanceArr
       .map((distance, index) => {
@@ -286,18 +180,18 @@ function findClosest(points) {
         };
       })
       .sort((a, b) => a.distance - b.distance)
-  );
-
-  return points.reduce((aggregator, point, index) => {
-    const updatedPoint = Object.assign(point, {
-      distances: distances[index],
-      closest: closest[index]
-    });
-    aggregator.push(updatedPoint);
-    return aggregator;
-  }, []);
+      );
+      
+      return points.reduce((aggregator, point, index) => {
+        const updatedPoint = Object.assign(point, {
+          distances: distances[index],
+          closest: closest[index]
+        });
+        aggregator.push(updatedPoint);
+        return aggregator;
+      }, []);
 }
-
+    
 function drawLineOfClosest(points) {
   points.forEach((point, index) => {
     ctx.beginPath();
@@ -315,14 +209,21 @@ function drawPoligon(ctx,points, color) {
   ctx.beginPath();
   points.forEach((point, index) => {
     index === 0
-      ? ctx.moveTo(point.x, point.y)
-      : ctx.lineTo(point.x, point.y);
+    ? ctx.moveTo(point.x, point.y)
+    : ctx.lineTo(point.x, point.y);
   });
   ctx.closePath();
   ctx.fill();
   ctx.fillStyle = defaultColor;
 }
 
+function generate(n, fn, div) {
+  const result = [];
+  while (n--) {
+    result.push(new fn(div));
+  }
+  return result;
+}
 export {
   update,
   randomPoint,
@@ -334,3 +235,4 @@ export {
   drawPoligon,
   Frame
 };
+    

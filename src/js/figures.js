@@ -117,9 +117,9 @@ function plusMinus(num) {
 }
 
 class Creator {
-  constructor(context) {
+  constructor(points) {
     this.factories = {}
-    this.context = context;
+    this.points = points;
     this.add('staticPoint', StaticPoint);
     this.add('Dot', Dot);
     this.add('movingPoint', MovingPoint );
@@ -131,7 +131,8 @@ class Creator {
   }
   
   create(type, ...props) {
-    return Object.assign(new this.factories[type](...props), this.context);
+    props = props.map(arg => typeof arg === 'string' ? this.points.get(arg) : arg);
+    return new this.factories[type](...props);
   }
 }
 
@@ -141,6 +142,7 @@ class Points {
     this.clientWidth = this.div.clientWidth;
     this.clientHeight = this.div.clientHeight;
     this.points = new Map();
+    
     this.set("A", { x: 0, y: 0, position: function() {this.from.x = 0; this.from.y = 0}});
     this.set("B", { x: this.clientWidth, y: 0, 
       position: function({clientWidth}) {
@@ -202,8 +204,62 @@ class Points {
 
 
 
+class CreateCorners {
+
+  constructor(div) {
+
+    this.points = new Points(div);
+
+    this.creator = new Creator(this.points);
+   
+    this.topLeft = [
+      this.creator.create('staticPoint', 'A'),
+      this.creator.create('movingPoint', 'A', 'B'),
+      this.creator.create('movingPoint', 'A', 'C')
+    ];
+    
+    this.bottomRight = [
+      this.creator.create('staticPoint', 'D'),
+      this.creator.create('movingPoint', 'D', 'B'),
+      this.creator.create('movingPoint', 'D', 'C')
+    ];
+
+    this.topRight = [
+      this.creator.create('staticPoint', 'B'),
+      this.creator.create('movingPoint', 'B', 'A'),
+      this.creator.create('movingPoint', 'B', 'D')
+    ];
+    
+    this.bottomLeft = [
+      this.creator.create('staticPoint', 'C'),
+      this.creator.create('movingPoint', 'C', 'A'),
+      this.creator.create('movingPoint', 'C', 'D')
+    ];
+
+    this.fikmik = [
+      this.creator.create('staticPoint', 'M'),
+      this.creator.create('movingPoint', 'M', 'C'),
+      this.creator.create('movingPoint', 'M', 'D')
+    ];
+
+  } 
+  
+  get() {
+    return new Set([
+      this.topLeft,
+      this.topRight,
+      this.bottomLeft,
+      this.bottomRight,
+      this.fikmik
+    ]);
+  }
+
+  
+}
 
 
 
-export { Point, Points, MovingPoint, Dot, MovingDot, Creator, RandomDot };
+
+
+export { Point, Points, MovingPoint, Dot, MovingDot, Creator, CreateCorners, RandomDot };
 
