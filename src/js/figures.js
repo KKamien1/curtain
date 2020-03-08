@@ -2,6 +2,9 @@ import {Easing} from './easing.js';
 
 const sampleFunct = (start, end, t, d, s) => Easing.get("easeInOutCirc", start, end, t, d, s)
 
+const [A, B, C, D, M, L, R] = ['A', 'B', 'C', 'D', 'M', 'L', 'R']; // POINTS  
+const POINTS = [A, B, C, D, M, L, R]
+
 const moving = {
   go(t) {
     switch(this.direction) {
@@ -36,7 +39,7 @@ class Point {
     this.x = point.x;
     this.y = point.y;
     this.radius = radius || 0;
-    this.position = point.position;
+    this.refresh = point.refresh;
   }
   draw() {
     this.ctx.beginPath();
@@ -53,6 +56,7 @@ class StaticPoint extends Point{
     super(from, radius);
     this.from = from;
     this.to = from;
+    this.type = 'StaticPoint';
   }
   go() {
     this.x = this.from.x;
@@ -64,6 +68,7 @@ class MovingPoint extends Point{
     super(from);
     this.from = from;
     this.to = to;
+    this.type = 'MovingPoint';
     this.direction = null;
   }
 }
@@ -102,41 +107,25 @@ class RandomDot extends Dot {
 
 
 
-function randomOf(value, start = 0) {
-  return Math.floor(Math.random() * (value - start + 1)) + start;
-}
 
-function randomUpdate(point, max = 5, min = 0) {
-  point.x += plusMinus(randomOf(max, min));
-  point.y += plusMinus(randomOf(max, min));
-  return point;
-}
-
-function plusMinus(num) {
-  return Math.round(Math.random()) ? num : -num;
-}
 
 class Creator {
   constructor(div) {
-    this.factories = {}
     this.points = new Points(div);
-    this.add('staticPoint', StaticPoint);
-    this.add('Dot', Dot);
-    this.add('movingPoint', MovingPoint );
-    this.add('movingDot', MovingDot);
+    this.register([StaticPoint, MovingPoint]);
   }
 
-  add(type, constructor) {
-    this.factories[type] = constructor;
+  register(types) {
+    types.forEach(constructor => this[constructor.name] = constructor);
   }
   
   create(type, ...props) {
-    props = props.map(arg => typeof arg === 'string' ? this.points.get(arg) : arg);
-    return new this.factories[type](...props);
+    props = props.map(arg => POINTS.includes(arg) ? this.points.get(arg) : arg);
+    return new this[type](...props);
   }
 
-  allPoints() {
-    return this.points.getAllPoints();
+  getPoints() {
+    return this.points.getAll();
   }
 }
 
@@ -147,49 +136,49 @@ class Points {
     this.clientHeight = this.div.clientHeight;
     this.points = new Map();
 
-    this.set("A", { x: 0, y: 0, position: function() {this.x = 0; this.y = 0}});
-    this.set("B", { x: this.clientWidth, y: 0, 
-      position: function({clientWidth}) {
+    this.set(A, { x: 0, y: 0, refresh: function() {this.x = 0; this.y = 0}});
+    this.set(B, { x: this.clientWidth, y: 0, 
+      refresh: function({clientWidth}) {
         this.x = clientWidth;
         this.y = 0;
       } 
     });
-    this.set("C", { 
+    this.set(C, { 
       x: 0, 
       y: this.clientHeight,
-      position: function({clientHeight}) {
+      refresh: function({clientHeight}) {
         this.x = 0;
         this.y = clientHeight;
       } 
     });
-    this.set("D", { 
+    this.set(D, { 
       x: this.clientWidth, 
       y: this.clientHeight, 
-      position: function ({clientHeight, clientWidth}) {
+      refresh: function ({clientHeight, clientWidth}) {
         this.x = clientWidth;
         this.y = clientHeight;
       }
     });
-    this.set("M", { 
+    this.set(M, { 
       x: this.clientWidth / 2, 
       y: this.clientHeight / 2, 
-      position: function ({clientHeight, clientWidth}) {
+      refresh: function ({clientHeight, clientWidth}) {
         this.x = clientWidth/2; 
         this.y = clientHeight / 2;
       }
     });
-    this.set("L", { 
+    this.set(L, { 
       x: 0, 
       y: this.clientHeight / 2,
-      position: function({clientHeight}) {
+      refresh: function({clientHeight}) {
         this.x = 0;
         this.y = clientHeight / 2
       } 
     });
-    this.set("R", { 
+    this.set(R, { 
       x: this.clientWidth, 
       y: this.clientHeight / 2, 
-      position: function({clientHeight, clientWidth}) {
+      refresh: function({clientHeight, clientWidth}) {
         this.x = clientWidth;
         this.y = clientHeight / 2
       } 
@@ -204,7 +193,7 @@ class Points {
     return this.points.get(name);
   }
 
-  getAllPoints() {
+  getAll() {
     return this.points;
   }
 
@@ -219,54 +208,54 @@ class Figures {
     this.creator = new Creator(div);
    
     this.topLeft = [
-      this.creator.create('staticPoint', 'A'),
-      this.creator.create('movingPoint', 'A', 'B'),
-      this.creator.create('movingPoint', 'A', 'C')
+      this.creator.create('StaticPoint', A),
+      this.creator.create('MovingPoint', A, B),
+      this.creator.create('MovingPoint', A, C)
     ];
     
     this.bottomRight = [
-      this.creator.create('staticPoint', 'D'),
-      this.creator.create('movingPoint', 'D', 'B'),
-      this.creator.create('movingPoint', 'D', 'C')
+      this.creator.create('StaticPoint', D),
+      this.creator.create('MovingPoint', D, B),
+      this.creator.create('MovingPoint', D, C)
     ];
 
     this.topRight = [
-      this.creator.create('staticPoint', 'B'),
-      this.creator.create('movingPoint', 'B', 'A'),
-      this.creator.create('movingPoint', 'B', 'D')
+      this.creator.create('StaticPoint', B),
+      this.creator.create('MovingPoint', B, A),
+      this.creator.create('MovingPoint', B, D)
     ];
     
     this.bottomLeft = [
-      this.creator.create('staticPoint', 'C'),
-      this.creator.create('movingPoint', 'C', 'A'),
-      this.creator.create('movingPoint', 'C', 'D')
+      this.creator.create('StaticPoint', C),
+      this.creator.create('MovingPoint', C, A),
+      this.creator.create('MovingPoint', C, D)
     ];
 
     this.fikmik = [
-      this.creator.create('staticPoint', 'M'),
-      this.creator.create('movingPoint', 'M', 'C'),
-      this.creator.create('movingPoint', 'M', 'D')
+      this.creator.create('StaticPoint', M),
+      this.creator.create('MovingPoint', M, C),
+      this.creator.create('MovingPoint', M, D)
     ];
     
     this.a = [
-        this.creator.create('staticPoint', 'M'),
-        this.creator.create('movingPoint', 'M', 'A'),
-        this.creator.create('movingPoint', 'M', 'B'),
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, A),
+        this.creator.create('MovingPoint', M, B),
     ];
     this.b = [
-        this.creator.create('staticPoint', 'M'),
-        this.creator.create('movingPoint', 'M', 'B'),
-        this.creator.create('movingPoint', 'M', 'D'),
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, B),
+        this.creator.create('MovingPoint', M, D),
     ];
     this.c = [
-        this.creator.create('staticPoint', 'M'),
-        this.creator.create('movingPoint', 'M', 'D'),
-        this.creator.create('movingPoint', 'M', 'C'),
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, D),
+        this.creator.create('MovingPoint', M, C),
     ];
     this.d = [
-        this.creator.create('staticPoint', 'M'),
-        this.creator.create('movingPoint', 'M', 'C'),
-        this.creator.create('movingPoint', 'M', 'A'),
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, C),
+        this.creator.create('MovingPoint', M, A),
     ];
 
   } 
@@ -289,13 +278,24 @@ class Figures {
     ]);
   }
   updatePoints(div) {
-    this.creator.allPoints().forEach(point => point.position(div));
+    this.creator.getPoints().forEach(point => point.refresh(div));
   }
-
   
 }
 
+function randomOf(value, start = 0) {
+  return Math.floor(Math.random() * (value - start + 1)) + start;
+}
 
+function randomUpdate(point, max = 5, min = 0) {
+  point.x += plusMinus(randomOf(max, min));
+  point.y += plusMinus(randomOf(max, min));
+  return point;
+}
+
+function plusMinus(num) {
+  return Math.round(Math.random()) ? num : -num;
+}
 
 
 

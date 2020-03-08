@@ -18,10 +18,11 @@ class Frame {
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.creator = new Figures(div);
-    //this.figures = this.creator.get();
-    this.figures = this.creator.getFromCenter();
+    this.objects = new Figures(div);
+    //this.figures = this.objects.get();
+    this.figures = this.objects.getFromCenter();
     this.set = [...Array.from(this.figures)].flat();
+    //this.objects.do(this.phase.subscribe);
     this.set.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
     this.events();
   }
@@ -79,7 +80,7 @@ class Frame {
     if (this.canvas) {
       this.setSize = this.div;
       this.ctx.fillStyle = this.color;
-      this.creator.updatePoints(this.div);
+      this.objects.updatePoints(this.div);
       // this.set.forEach(point => {
       //   point.position(this.div);
       //   point.go(this.duration);
