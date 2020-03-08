@@ -18,7 +18,10 @@ const options = {
   duration: 300
 }
 
-divs.forEach(el => new Frame({div:el, ...options}));
+divs.forEach(el => {
+  options.duration += 200;
+  new Frame({div:el, ...options})
+});
 
 
 

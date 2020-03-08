@@ -31,12 +31,13 @@ class Frame {
     this.requestId = undefined;
     this.createCanvas();
     this.points = new Points(this.div);
-    this.createElements();
+    this.createCorners();
+    this.set.forEach(el => this.phase.subscribe(el));
     this.events();
   }
 
   events() {
-    this.div.addEventListener('mouseenter', () => this.notify(FORWARD));
+    this.div.addEventListener('mouseenter', () => {this.notify(FORWARD)});
     this.div.addEventListener('mouseleave', () => this.notify(BACK));
     window.addEventListener('resize', e => this.handleResize(e));
   }
@@ -179,12 +180,6 @@ class Frame {
       creator.create('movingPoint', this.points.get('M'), this.points.get('D'))
     ];
 
-    this.whatt = [
-      creator.create('staticPoint', this.points.get('L')),
-      creator.create('movingPoint', this.points.get('D'), this.points.get('B')),
-      creator.create('movingPoint', this.points.get('C'), this.points.get('M'))
-    ];
-
     this.figures = new Set([
       this.staticPoints,
       this.topRight,
@@ -201,7 +196,7 @@ class Frame {
       ...this.fikmik
     ];
 
-    this.set.forEach(el => this.phase.subscribe(el));
+    
   }
 
   setPoint(name, point) {
