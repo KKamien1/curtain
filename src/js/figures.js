@@ -117,9 +117,9 @@ function plusMinus(num) {
 }
 
 class Creator {
-  constructor(points) {
+  constructor(div) {
     this.factories = {}
-    this.points = points;
+    this.points = new Points(div);
     this.add('staticPoint', StaticPoint);
     this.add('Dot', Dot);
     this.add('movingPoint', MovingPoint );
@@ -133,6 +133,10 @@ class Creator {
   create(type, ...props) {
     props = props.map(arg => typeof arg === 'string' ? this.points.get(arg) : arg);
     return new this.factories[type](...props);
+  }
+
+  allPoints() {
+    return this.points.getAllPoints();
   }
 }
 
@@ -208,13 +212,11 @@ class Points {
 
 
 
-class CreateCorners {
+class Figures {
 
   constructor(div) {
 
-    this.points = new Points(div);
-
-    this.creator = new Creator(this.points);
+    this.creator = new Creator(div);
    
     this.topLeft = [
       this.creator.create('staticPoint', 'A'),
@@ -287,7 +289,7 @@ class CreateCorners {
     ]);
   }
   updatePoints(div) {
-    this.points.getAllPoints().forEach(point => point.position(div));
+    this.creator.allPoints().forEach(point => point.position(div));
   }
 
   
@@ -297,5 +299,5 @@ class CreateCorners {
 
 
 
-export { Point, Points, MovingPoint, Dot, MovingDot, Creator, CreateCorners, RandomDot };
+export { Point, Points, MovingPoint, Dot, MovingDot, Creator, Figures as CreateCorners, RandomDot };
 

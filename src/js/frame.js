@@ -1,4 +1,4 @@
-import {CreateCorners} from './figures.js' 
+import {CreateCorners as Figures} from './figures.js' 
 
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
@@ -18,7 +18,8 @@ class Frame {
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.creator = new CreateCorners(div);
+    this.creator = new Figures(div);
+    //this.figures = this.creator.get();
     this.figures = this.creator.getFromCenter();
     this.set = [...Array.from(this.figures)].flat();
     this.set.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
@@ -34,7 +35,6 @@ class Frame {
   notify(eventType) {
     console.log('Notification:', eventType);
     this.phase(eventType);
-    //this.set.forEach(point => point.position(this.div))
     switch (eventType) {
       case FORWARD: this.requestId = requestAnimationFrame(this.loop); break;
       case BACK:    this.requestId = requestAnimationFrame(this.loop); break;
@@ -60,7 +60,7 @@ class Frame {
   
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.set.forEach(element => element.draw().go(this.t));
+    this.set.forEach(element => element.go(this.t));
     this.figures.forEach(figure => drawPoligon(this.ctx, figure, this.color));
   }
   
