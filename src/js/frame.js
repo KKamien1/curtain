@@ -18,7 +18,8 @@ class Frame {
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.figures = new CreateCorners(div).get();
+    this.creator = new CreateCorners(div);
+    this.figures = this.creator.getFromCenter();
     this.set = [...Array.from(this.figures)].flat();
     this.set.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
     this.events();
@@ -33,7 +34,7 @@ class Frame {
   notify(eventType) {
     console.log('Notification:', eventType);
     this.phase(eventType);
-    this.set.forEach(point => point.position(this.div))
+    //this.set.forEach(point => point.position(this.div))
     switch (eventType) {
       case FORWARD: this.requestId = requestAnimationFrame(this.loop); break;
       case BACK:    this.requestId = requestAnimationFrame(this.loop); break;
@@ -78,11 +79,12 @@ class Frame {
     if (this.canvas) {
       this.setSize = this.div;
       this.ctx.fillStyle = this.color;
-      this.set.forEach(point => {
-        point.position(this.div);
-        point.go(this.duration);
-        point.ctx = this.ctx;
-      });
+      this.creator.updatePoints(this.div);
+      // this.set.forEach(point => {
+      //   point.position(this.div);
+      //   point.go(this.duration);
+      //   point.ctx = this.ctx;
+      // });
       this.draw();
       this.info;
     }
@@ -101,7 +103,7 @@ class Frame {
     this.canvas.width = clientWidth;
     this.canvas.height = clientHeight;
   }
-  
+
 }
 
 function observable(value) {

@@ -1,15 +1,4 @@
-import { Point, Dot } from "./figures.js";
-import {
-  update,
-  randomPoint,
-  generate,
-  drawLineOfClosest,
-  findClosest,
-  drawLine,
-  drawCircle,
-  Frame
-} from "./frame.js";
-
+import { Frame } from "./frame.js";
 
 const divs = document.querySelectorAll('.frame') //? 
 
@@ -22,7 +11,6 @@ divs.forEach(el => {
   options.duration += 200;
   new Frame({div:el, ...options})
 });
-
 
 
 function setColor(parameters) {

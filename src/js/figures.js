@@ -142,52 +142,52 @@ class Points {
     this.clientWidth = this.div.clientWidth;
     this.clientHeight = this.div.clientHeight;
     this.points = new Map();
-    
-    this.set("A", { x: 0, y: 0, position: function() {this.from.x = 0; this.from.y = 0}});
+
+    this.set("A", { x: 0, y: 0, position: function() {this.x = 0; this.y = 0}});
     this.set("B", { x: this.clientWidth, y: 0, 
       position: function({clientWidth}) {
-        this.from.x = clientWidth;
-        this.from.y = 0;
+        this.x = clientWidth;
+        this.y = 0;
       } 
     });
     this.set("C", { 
       x: 0, 
       y: this.clientHeight,
       position: function({clientHeight}) {
-        this.from.x = 0;
-        this.from.y = clientHeight;
+        this.x = 0;
+        this.y = clientHeight;
       } 
     });
     this.set("D", { 
       x: this.clientWidth, 
       y: this.clientHeight, 
       position: function ({clientHeight, clientWidth}) {
-        this.from.x = clientWidth;
-        this.from.y = clientHeight;
+        this.x = clientWidth;
+        this.y = clientHeight;
       }
     });
     this.set("M", { 
       x: this.clientWidth / 2, 
       y: this.clientHeight / 2, 
       position: function ({clientHeight, clientWidth}) {
-        this.from.x = clientWidth/2; 
-        this.from.y = clientHeight / 2;
+        this.x = clientWidth/2; 
+        this.y = clientHeight / 2;
       }
     });
     this.set("L", { 
       x: 0, 
       y: this.clientHeight / 2,
       position: function({clientHeight}) {
-        this.from.x = 0;
-        this.from.y = clientHeight / 2
+        this.x = 0;
+        this.y = clientHeight / 2
       } 
     });
     this.set("R", { 
       x: this.clientWidth, 
       y: this.clientHeight / 2, 
       position: function({clientHeight, clientWidth}) {
-        this.from.x = clientWidth;
-        this.from.y = clientHeight / 2
+        this.x = clientWidth;
+        this.y = clientHeight / 2
       } 
     });
   }
@@ -198,6 +198,10 @@ class Points {
 
   get(name) {
     return this.points.get(name);
+  }
+
+  getAllPoints() {
+    return this.points;
   }
 
 }
@@ -241,6 +245,27 @@ class CreateCorners {
       this.creator.create('movingPoint', 'M', 'C'),
       this.creator.create('movingPoint', 'M', 'D')
     ];
+    
+    this.a = [
+        this.creator.create('staticPoint', 'M'),
+        this.creator.create('movingPoint', 'M', 'A'),
+        this.creator.create('movingPoint', 'M', 'B'),
+    ];
+    this.b = [
+        this.creator.create('staticPoint', 'M'),
+        this.creator.create('movingPoint', 'M', 'B'),
+        this.creator.create('movingPoint', 'M', 'D'),
+    ];
+    this.c = [
+        this.creator.create('staticPoint', 'M'),
+        this.creator.create('movingPoint', 'M', 'D'),
+        this.creator.create('movingPoint', 'M', 'C'),
+    ];
+    this.d = [
+        this.creator.create('staticPoint', 'M'),
+        this.creator.create('movingPoint', 'M', 'C'),
+        this.creator.create('movingPoint', 'M', 'A'),
+    ];
 
   } 
   
@@ -252,6 +277,17 @@ class CreateCorners {
       this.bottomRight,
       this.fikmik
     ]);
+  }
+  getFromCenter() {
+    return new Set([
+      this.a,
+      this.b,
+      this.c,
+      this.d,
+    ]);
+  }
+  updatePoints(div) {
+    this.points.getAllPoints().forEach(point => point.position(div));
   }
 
   
