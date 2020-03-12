@@ -5,6 +5,7 @@
 ## Topics 
 
 - CANVAS
+ - CANVAS ELEMENTS : Point, StaticPoint, MovingPoint, Figure, Curtain
  - Resize canvas 
   - reset context to default values
 

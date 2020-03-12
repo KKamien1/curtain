@@ -107,8 +107,6 @@ class RandomDot extends Dot {
 
 
 
-
-
 class Creator {
   constructor(div) {
     this.points = new Points(div);
@@ -196,85 +194,95 @@ class Points {
 
 }
 
+class Figure {
+  constructor({name, points}) {
+    this.name = name;
+    this.setOfPoints = points;
+  }
+  go(t) {
+    this.setOfPoints.forEach(point => point.go(t))
+    return this;
+  }
+  
+  draw(draw, ctx, color) {
+    draw(ctx, this.setOfPoints, color);
+    return this;
+  }
+}
 
 
-class Figures {
+class Curtain {
 
-  constructor(div) {
+  constructor(div, curtain) {
 
+    this.curtains = new Map()
+    .set('abc', ['a', 'b', 'c', 'bottomRight'])
+    .set('corners', ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'])
+    .set('fikmik', ['topLeft', 'topRight', 'fikmik']);
+
+    
     this.creator = new Creator(div);
    
-    this.topLeft = [
+    this.topLeft = new Figure({name: 'topLeft', points: [
       this.creator.create('StaticPoint', A),
       this.creator.create('MovingPoint', A, B),
       this.creator.create('MovingPoint', A, C)
-    ];
+    ]});
     
-    this.bottomRight = [
+    this.bottomRight = new Figure({name: '', points:[
       this.creator.create('StaticPoint', D),
       this.creator.create('MovingPoint', D, B),
       this.creator.create('MovingPoint', D, C)
-    ];
+    ]});
 
-    this.topRight = [
+    this.topRight = new Figure({name: '', points:[
       this.creator.create('StaticPoint', B),
       this.creator.create('MovingPoint', B, A),
       this.creator.create('MovingPoint', B, D)
-    ];
+    ]});
     
-    this.bottomLeft = [
+    this.bottomLeft = new Figure({name: '', points:[
       this.creator.create('StaticPoint', C),
       this.creator.create('MovingPoint', C, A),
       this.creator.create('MovingPoint', C, D)
-    ];
+    ]});
 
-    this.fikmik = [
+    this.fikmik = new Figure({name: '', points:[
       this.creator.create('StaticPoint', M),
       this.creator.create('MovingPoint', M, C),
       this.creator.create('MovingPoint', M, D)
-    ];
+    ]});
     
-    this.a = [
+    this.a = new Figure({name: '', points:[
         this.creator.create('StaticPoint', M),
         this.creator.create('MovingPoint', M, A),
         this.creator.create('MovingPoint', M, B),
-    ];
-    this.b = [
+    ]});
+    this.b = new Figure({name: '', points:[
         this.creator.create('StaticPoint', M),
         this.creator.create('MovingPoint', M, B),
         this.creator.create('MovingPoint', M, D),
-    ];
-    this.c = [
+    ]});
+    this.c = new Figure({name: '', points:[
         this.creator.create('StaticPoint', M),
         this.creator.create('MovingPoint', M, D),
         this.creator.create('MovingPoint', M, C),
-    ];
-    this.d = [
+    ]});
+    this.d = new Figure({name: '', points:[
         this.creator.create('StaticPoint', M),
         this.creator.create('MovingPoint', M, C),
         this.creator.create('MovingPoint', M, A),
-    ];
+    ]});
 
+    
+    this.build(curtain)
   } 
   
-  get() {
-    return new Set([
-      this.topLeft,
-      this.topRight,
-      this.bottomLeft,
-      this.bottomRight,
-      this.fikmik
-    ]);
-  }
-  getFromCenter() {
-    return new Set([
-      this.a,
-      this.b,
-      this.c,
-      this.d,
-    ]);
-  }
-  updatePoints(div) {
+  build(curtain) {
+    this.figures = this.curtains.get(curtain).map(name => this[name]);
+  } 
+
+  refreshPoints(div) {
     this.creator.getPoints().forEach(point => point.refresh(div));
   }
   
@@ -296,5 +304,5 @@ function plusMinus(num) {
 
 
 
-export { Point, Points, MovingPoint, Dot, MovingDot, Creator, Figures as CreateCorners, RandomDot };
+export { Point, Points, MovingPoint, Dot, MovingDot, Creator, Curtain, RandomDot };
 

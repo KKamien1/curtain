@@ -1,4 +1,4 @@
-import {CreateCorners as Figures} from './figures.js' 
+import {Curtain} from './figures.js' 
 
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
@@ -18,12 +18,10 @@ class Frame {
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.objects = new Figures(div);
-    //this.figures = this.objects.get();
-    this.figures = this.objects.getFromCenter();
-    this.set = [...Array.from(this.figures)].flat();
-    //this.objects.do(this.phase.subscribe);
-    this.set.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
+    this.curtain = new Curtain(div, 'abc');
+    this.figures = this.curtain.figures;
+    this.set = this.figures.map(figure => figure.setOfPoints);
+    this.set.flat().forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
     this.events();
   }
   
@@ -61,8 +59,8 @@ class Frame {
   
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.set.forEach(element => element.go(this.t));
-    this.figures.forEach(figure => drawPoligon(this.ctx, figure, this.color));
+    //this.set.forEach(element => element.go(this.t));
+    this.figures.forEach(figure => figure.draw(drawPoligon, this.ctx, this.color).go(this.t));
   }
   
   createCanvas() {
@@ -80,12 +78,7 @@ class Frame {
     if (this.canvas) {
       this.setSize = this.div;
       this.ctx.fillStyle = this.color;
-      this.objects.updatePoints(this.div);
-      // this.set.forEach(point => {
-      //   point.position(this.div);
-      //   point.go(this.duration);
-      //   point.ctx = this.ctx;
-      // });
+      this.curtain.refreshPoints(this.div);
       this.draw();
       this.info;
     }
