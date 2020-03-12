@@ -18,9 +18,9 @@ class Frame {
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.curtain = new Curtain(div, 'abc');
+    this.curtain = new Curtain(div, 'tocenter');
     this.figures = this.curtain.figures;
-    this.set = this.figures.map(figure => figure.setOfPoints);
+    this.set = this.figures.map(figure => figure.points);
     this.set.flat().forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
     this.events();
   }
@@ -60,7 +60,7 @@ class Frame {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     //this.set.forEach(element => element.go(this.t));
-    this.figures.forEach(figure => figure.draw(drawPoligon, this.ctx, this.color).go(this.t));
+    this.curtain.draw(this.ctx, this.t, this.color);
   }
   
   createCanvas() {
@@ -199,19 +199,7 @@ function drawLineOfClosest(points) {
   });
 }
 
-function drawPoligon(ctx,points, color) {
-  let defaultColor = ctx.fillStyle;
-  ctx.fillStyle = color || ctx.fillStyle;
-  ctx.beginPath();
-  points.forEach((point, index) => {
-    index === 0
-    ? ctx.moveTo(point.x, point.y)
-    : ctx.lineTo(point.x, point.y);
-  });
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = defaultColor;
-}
+
 
 function generate(n, fn, div) {
   const result = [];
@@ -228,7 +216,6 @@ export {
   findClosest,
   drawLine,
   drawCircle,
-  drawPoligon,
   Frame
 };
     

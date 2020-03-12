@@ -1,4 +1,5 @@
 import {Easing} from './easing.js';
+import {drawPoligon} from './utils.js';
 
 const sampleFunct = (start, end, t, d, s) => Easing.get("easeInOutCirc", start, end, t, d, s)
 
@@ -195,95 +196,123 @@ class Points {
 }
 
 class Figure {
-  constructor({name, points}) {
+  constructor(div, name, draw = drawPoligon) {
     this.name = name;
-    this.setOfPoints = points;
+    this.drawFunc = draw;
+    this.creator = new Creator(div);
+
+    this.figures =  new Map()
+      .set('topLeft', [
+          this.creator.create('StaticPoint', A),
+          this.creator.create('MovingPoint', A, B),
+          this.creator.create('MovingPoint', A, C)
+        ])  
+    .set('bottomRight', [
+      this.creator.create('StaticPoint', D),
+      this.creator.create('MovingPoint', D, B),
+      this.creator.create('MovingPoint', D, C)
+    ])
+    
+    .set('topRight', [
+      this.creator.create('StaticPoint', B),
+      this.creator.create('MovingPoint', B, A),
+      this.creator.create('MovingPoint', B, D)
+    ])
+    
+    .set('bottomLeft', [
+      this.creator.create('StaticPoint', C),
+      this.creator.create('MovingPoint', C, A),
+      this.creator.create('MovingPoint', C, D)
+    ])
+    
+    .set('fikmik', [
+      this.creator.create('StaticPoint', M),
+      this.creator.create('MovingPoint', M, C),
+      this.creator.create('MovingPoint', M, D)
+    ])
+    
+    .set('a', [
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, A),
+        this.creator.create('MovingPoint', M, B),
+    ])
+    .set('b', [
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, B),
+        this.creator.create('MovingPoint', M, D),
+    ])
+    .set('c', [
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, D),
+        this.creator.create('MovingPoint', M, C),
+    ])
+    .set('d', [
+        this.creator.create('StaticPoint', M),
+        this.creator.create('MovingPoint', M, C),
+        this.creator.create('MovingPoint', M, A),
+    ])
+    .set('topCenter', [
+        this.creator.create('StaticPoint', A),
+        this.creator.create('StaticPoint', B),
+        this.creator.create('MovingPoint', A, M),
+    ])
+    .set('bottomCenter', [
+        this.creator.create('StaticPoint', C),
+        this.creator.create('StaticPoint', D),
+        this.creator.create('MovingPoint', D, M),
+    ])
+    .set('rightCenter', [
+        this.creator.create('StaticPoint', B),
+        this.creator.create('StaticPoint', D),
+        this.creator.create('MovingPoint', D, M),
+    ])
+    .set('leftCenter', [
+        this.creator.create('StaticPoint', A),
+        this.creator.create('StaticPoint', C),
+        this.creator.create('MovingPoint', A, M),
+    ]);
+    this.points = this.figures.get(name);
+  }
+  get(name) {
+    this.figures.get(name);
   }
   go(t) {
-    this.setOfPoints.forEach(point => point.go(t))
+    this.points.forEach(point => point.go(t))
     return this;
   }
   
-  draw(draw, ctx, color) {
-    draw(ctx, this.setOfPoints, color);
+  draw(ctx, color) {
+    this.drawFunc(ctx, this.points, color);
     return this;
   }
+
 }
+
 
 
 class Curtain {
 
   constructor(div, curtain) {
-
+    
     this.curtains = new Map()
     .set('abc', ['a', 'b', 'c', 'bottomRight'])
     .set('corners', ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'])
-    .set('fikmik', ['topLeft', 'topRight', 'fikmik']);
+    .set('fikmik', ['topLeft', 'topRight', 'fikmik'])
+    .set('tocenter', ['topCenter', 'bottomCenter',  'leftCenter','rightCenter']);
 
-    
-    this.creator = new Creator(div);
-   
-    this.topLeft = new Figure({name: 'topLeft', points: [
-      this.creator.create('StaticPoint', A),
-      this.creator.create('MovingPoint', A, B),
-      this.creator.create('MovingPoint', A, C)
-    ]});
-    
-    this.bottomRight = new Figure({name: '', points:[
-      this.creator.create('StaticPoint', D),
-      this.creator.create('MovingPoint', D, B),
-      this.creator.create('MovingPoint', D, C)
-    ]});
-
-    this.topRight = new Figure({name: '', points:[
-      this.creator.create('StaticPoint', B),
-      this.creator.create('MovingPoint', B, A),
-      this.creator.create('MovingPoint', B, D)
-    ]});
-    
-    this.bottomLeft = new Figure({name: '', points:[
-      this.creator.create('StaticPoint', C),
-      this.creator.create('MovingPoint', C, A),
-      this.creator.create('MovingPoint', C, D)
-    ]});
-
-    this.fikmik = new Figure({name: '', points:[
-      this.creator.create('StaticPoint', M),
-      this.creator.create('MovingPoint', M, C),
-      this.creator.create('MovingPoint', M, D)
-    ]});
-    
-    this.a = new Figure({name: '', points:[
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, A),
-        this.creator.create('MovingPoint', M, B),
-    ]});
-    this.b = new Figure({name: '', points:[
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, B),
-        this.creator.create('MovingPoint', M, D),
-    ]});
-    this.c = new Figure({name: '', points:[
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, D),
-        this.creator.create('MovingPoint', M, C),
-    ]});
-    this.d = new Figure({name: '', points:[
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, C),
-        this.creator.create('MovingPoint', M, A),
-    ]});
-
-    
-    this.build(curtain)
+    this.build(div, curtain)
   } 
   
-  build(curtain) {
-    this.figures = this.curtains.get(curtain).map(name => this[name]);
+  build(div, curtain) {
+    this.figures = this.curtains.get(curtain).map(name => new Figure(div, name));
   } 
 
   refreshPoints(div) {
     this.creator.getPoints().forEach(point => point.refresh(div));
+  }
+  draw(ctx, t, color) {
+    this.figures.forEach(figure => figure.draw(ctx, color).go(t));
+    return this
   }
   
 }
