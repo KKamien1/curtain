@@ -29,8 +29,12 @@ const notify = {
   notify(value) {
     this.direction = value;
     if(value === 'end') {
-        this.x = this.from.x;
-        this.y = this.from.y;
+      console.log(!this instanceof StaticPoint);
+        if(!this instanceof StaticPoint) {
+
+          // this.x = this.from.x;
+          // this.y = this.from.y;
+        }
     }
   }
 }
@@ -55,14 +59,15 @@ class Point {
 class StaticPoint extends Point{
   constructor(from, radius) {
     super(from, radius);
-    this.from = from;
-    this.to = from;
+    // this.from = from;
+    // this.to = from;
     this.type = 'StaticPoint';
   }
   go() {
-    this.x = this.from.x;
-    this.y = this.from.y;
+    // this.x = this.x;
+    // this.y = this.y;
   }
+
 }
 class MovingPoint extends Point{
   constructor(from, to) {
@@ -150,7 +155,7 @@ class Points {
     this.set(D, { 
       x: div.clientWidth, 
       y: div.clientHeight, 
-      refresh: function ({clientHeight, clientWidth}) {
+      refresh: function ({clientWidth, clientHeight}) {
         this.x = clientWidth;
         this.y = clientHeight;
       }
@@ -158,7 +163,7 @@ class Points {
     this.set(M, { 
       x: div.clientWidth / 2, 
       y: div.clientHeight / 2, 
-      refresh: function ({clientHeight, clientWidth}) {
+      refresh: function ({clientWidth, clientHeight}) {
         this.x = clientWidth/2; 
         this.y = clientHeight / 2;
       }
@@ -282,8 +287,11 @@ class Figure {
   }
   
   draw(ctx, color) {
-    this.drawFunc(ctx, this.points, color);
+    this.drawFunc(ctx, color);
     return this;
+  }
+  getPoints() {
+    this.creator.getPoints();
   }
 
 }
@@ -298,7 +306,7 @@ class Curtain {
     .set('abc', ['a', 'b', 'c', 'bottomRight'])
     .set('corners', ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'])
     .set('fikmik', ['topLeft', 'topRight', 'fikmik'])
-    .set('tocenter', ['topCenter', 'bottomCenter',  'leftCenter','rightCenter']);
+    .set('tocenter', ['topCenter']);
 
     this.build(div, curtain)
   } 
@@ -308,7 +316,8 @@ class Curtain {
   } 
 
   refreshPoints(div) {
-    this.creator.getPoints().forEach(point => point.refresh(div));
+    console.log(div);
+    this.curtain.getPoints().forEach(point => point.refresh(div))
   }
   draw(ctx, t, color) {
     this.figures.forEach(figure => figure.draw(ctx, color).go(t));
