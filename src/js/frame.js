@@ -1,4 +1,4 @@
-import {Curtain, Points} from './figures.js' 
+import {Curtain} from './figures.js' 
 
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
@@ -19,6 +19,8 @@ class Frame {
     this.createCanvas();
     this.createCurtain();
     this.events();
+
+    const elo = "Everywhere";
   }
   
   events() {
@@ -127,97 +129,9 @@ function observable(value) {
   
 }
 
-function update(point) {
-  point.x =
-  point.destination.clientX > point.x
-  ? point.x + point.speed * point.acceleration
-  : point.x - point.speed * point.acceleration;
-  point.y =
-  point.destination.clientY > point.y
-  ? point.y + point.speed * point.acceleration
-  : point.y - point.speed * point.acceleration;
-  return point;
-}
-function randomPoint(dimentions) {
-  return {
-    x: Math.floor(randomOf(dimentions.width)),
-    y: Math.floor(randomOf(dimentions.height))
-  };
-}
 
-function drawCircle(center, radius = 3, color = "rgba(100,100,100,.8)") {
-  defaultColor = ctx.fillStyle;
-  ctx.fillStyle = color || ctx.fillStyle;
-  ctx.beginPath();
-  ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = defaultColor;
-}
-
-function drawLine(ctx, a, b) {
-  ctx.beginPath();
-  ctx.moveTo(a.x, a.y);
-  ctx.lineTo(b.x, b.y);
-  ctx.stroke();
-}
-
-function findClosest(points) {
-  const distances = points.map(point => {
-    let distanceValues = [];
-    points.forEach(pointB => distanceValues.push(distance(point, pointB)));
-    return distanceValues;
-  });
-  
-  const closest = distances.map(distanceArr =>
-    distanceArr
-      .map((distance, index) => {
-        return {
-          distance,
-          index
-        };
-      })
-      .sort((a, b) => a.distance - b.distance)
-      );
-      
-      return points.reduce((aggregator, point, index) => {
-        const updatedPoint = Object.assign(point, {
-          distances: distances[index],
-          closest: closest[index]
-        });
-        aggregator.push(updatedPoint);
-        return aggregator;
-      }, []);
-}
-    
-function drawLineOfClosest(points) {
-  points.forEach((point, index) => {
-    ctx.beginPath();
-    point.closest.forEach(closePoint => {
-      let { x, y } = points[closePoint.index];
-      !index ? ctx.moveTo(point.x, point.y) : ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-  });
-}
-
-
-
-function generate(n, fn, div) {
-  const result = [];
-  while (n--) {
-    result.push(new fn(div));
-  }
-  return result;
-}
 export {
-  update,
-  randomPoint,
-  generate,
-  drawLineOfClosest,
-  findClosest,
-  drawLine,
-  drawCircle,
+
   Frame
 };
     

@@ -1,10 +1,9 @@
 import {drawPoligon} from './utils.js';
 
 import create from './creator.js';
+import pointsFactory from './points.js';
 
 const [A, B, C, D, M, L, R] = ['A', 'B', 'C', 'D', 'M', 'L', 'R']; // POINTS  
-
-const POINTS = [A, B, C, D, M, L, R]
 
 const CURTAINS = new Map()
 .set('abc',     ['a', 'b', 'c', 'bottomRight'])
@@ -32,67 +31,8 @@ const FIGURES =  new Map()
   .set('leftToRight',  [ ['StaticPoint', M], ['MovingPoint', C, D], ['MovingPoint', A, B] ])
   .set('rightToLeft',  [ ['StaticPoint', M], ['MovingPoint', D, C], ['MovingPoint', B, A] ]);
 
-class Points {
-  constructor(div) {
-    this.points = new Map()
-      .set(A, { x: 0, y: 0, refresh: function() {this.x = 0; this.y = 0}})
-      .set(B, { x: div.clientWidth, y: 0, 
-        refresh: function({clientWidth}) {
-          this.x = clientWidth;
-          this.y = 0;
-          } 
-        })
-      .set(C, { 
-        x: 0, 
-        y: div.clientHeight,
-        refresh: function({clientHeight}) {
-          this.x = 0;
-          this.y = clientHeight;
-        } 
-      })
-      .set(D, { 
-        x: div.clientWidth, 
-        y: div.clientHeight, 
-        refresh: function ({clientWidth, clientHeight}) {
-          this.x = clientWidth;
-          this.y = clientHeight;
-        }
-      })
-      .set(M, { 
-        x: div.clientWidth / 2, 
-        y: div.clientHeight / 2, 
-        refresh: function ({clientWidth, clientHeight}) {
-          this.x = clientWidth/2; 
-          this.y = clientHeight / 2;
-        }
-      })
-      .set(L, { 
-        x: 0, 
-        y: div.clientHeight / 2,
-        refresh: function({clientHeight}) {
-          this.x = 0;
-          this.y = clientHeight / 2
-        } 
-      })
-      .set(R, { 
-        x: div.clientWidth, 
-        y: div.clientHeight / 2, 
-        refresh: function({clientHeight, clientWidth}) {
-          this.x = clientWidth;
-          this.y = clientHeight / 2
-        } 
-      });
-  }
 
-  getAll() {
-    return this.points;
-  }
 
-  refreshPoints(div) {
-    this.points.forEach(point => point.refresh(div))
-  }
-
-}
 
 class Figure {
   constructor({points, name, draw = drawPoligon, color}) {
@@ -119,7 +59,10 @@ class Figure {
 class Curtain {
 
   constructor(div, curtain, ctx) {
-    this.points = new Points(div);
+
+    pointsFactory.add(div);
+    this.points = pointsFactory.get(div);
+
     this.ctx = ctx;
     this.figures = CURTAINS.get(curtain).map(name => new Figure({points: this.points.getAll(), name}));
     this.elements = this.figures.reduce((all,{elements}) => [...all, ...elements],[]);
@@ -136,21 +79,6 @@ class Curtain {
   
 }
 
-function randomOf(value, start = 0) {
-  return Math.floor(Math.random() * (value - start + 1)) + start;
-}
 
-function randomUpdate(point, max = 5, min = 0) {
-  point.x += plusMinus(randomOf(max, min));
-  point.y += plusMinus(randomOf(max, min));
-  return point;
-}
-
-function plusMinus(num) {
-  return Math.round(Math.random()) ? num : -num;
-}
-
-
-
-export { Points, Curtain };
+export { Curtain };
 

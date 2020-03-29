@@ -14,9 +14,6 @@ body {
   color: #1747ff;
   height: 100%;
 }
-canvas {
-  // border: 1px solid white;
-}
 
 .frame {
   width: 30%;
@@ -28,6 +25,11 @@ canvas {
 #frame2 {
   width: 30%;
   height: 150px;
+  background: #3776A1;
+}
+#frame6 {
+  width: 50%;
+  height: 450px;
   background: #3776A1;
 }
 
