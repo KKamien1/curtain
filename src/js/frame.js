@@ -1,7 +1,8 @@
 import {Curtain} from './figures.js' 
-
+import {debounce} from './utils.js'
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
+
 
 
 class Frame {
@@ -26,7 +27,7 @@ class Frame {
   events() {
     this.div.addEventListener('mouseenter', () => {this.notify(FORWARD)});
     this.div.addEventListener('mouseleave', () => this.notify(BACK));
-    window.addEventListener('resize', e => this.handleResize(e));
+    window.addEventListener('resize', debounce((e)=> this.handleResize(), 500));
   }
   
   notify(eventType) {
@@ -73,7 +74,7 @@ class Frame {
   }
 
   createCurtain() {
-    this.curtain = new Curtain(this.div, 'test2', this.ctx);
+    this.curtain = new Curtain(this.div, 'corners', this.ctx);
     this.set = this.curtain.getSet();
     this.curtain.elements.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
   }
