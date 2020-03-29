@@ -1,9 +1,9 @@
 
-function drawPoligon(ctx, color) {
+function drawPoligon(ctx) {
   let defaultColor = ctx.fillStyle;
-  ctx.fillStyle = color || ctx.fillStyle;
+  ctx.fillStyle = this.color || ctx.fillStyle;
   ctx.beginPath();
-  this.points.forEach((point, index) => {
+  this.elements.forEach((point, index) => {
     index === 0
     ? ctx.moveTo(point.x, point.y)
     : ctx.lineTo(point.x, point.y);

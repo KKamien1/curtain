@@ -1,327 +1,136 @@
-import {Easing} from './easing.js';
 import {drawPoligon} from './utils.js';
 
-const sampleFunct = (start, end, t, d, s) => Easing.get("easeInOutCirc", start, end, t, d, s)
+import create from './creator.js';
 
 const [A, B, C, D, M, L, R] = ['A', 'B', 'C', 'D', 'M', 'L', 'R']; // POINTS  
+
 const POINTS = [A, B, C, D, M, L, R]
 
-const moving = {
-  go(t) {
-    switch(this.direction) {
-      case 'forward' : {
-        this.x = sampleFunct(this.from.x, this.to.x, t, this.duration, 0 );
-        this.y = sampleFunct(this.from.y, this.to.y, t, this.duration, 0 );
-      };
-      break;
-      case 'back' : {
-        this.x = sampleFunct(this.to.x, this.from.x, t, this.duration, 0 );
-        this.y = sampleFunct(this.to.y, this.from.y, t, this.duration, 0 );
-      };
-      break;
-      default:
-        return;
-    }
-  },
-}
-
-const notify = {
-  notify(value) {
-    this.direction = value;
-    if(value === 'end') {
-      console.log(!this instanceof StaticPoint);
-        if(!this instanceof StaticPoint) {
-
-          // this.x = this.from.x;
-          // this.y = this.from.y;
-        }
-    }
-  }
-}
-
-class Point {
-  constructor(point, radius) {
-    this.x = point.x;
-    this.y = point.y;
-    this.radius = radius || 0;
-    this.refresh = point.refresh;
-  }
-  draw() {
-    this.ctx.beginPath();
-    this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-    this.ctx.closePath();
-    this.ctx.fill();
-    return this;
-  }
-}
+const CURTAINS = new Map()
+.set('abc',     ['a', 'b', 'c', 'bottomRight'])
+.set('corners', ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'])
+.set('fikmik',  ['topLeft', 'topRight', 'fikmik'])
+.set('test',    ['topLeft'])
+.set('tocenter',['topCenter', 'bottomCenter', 'leftCenter', 'rightCenter']);
 
 
-class StaticPoint extends Point{
-  constructor(from, radius) {
-    super(from, radius);
-    // this.from = from;
-    // this.to = from;
-    this.type = 'StaticPoint';
-  }
-  go() {
-    // this.x = this.x;
-    // this.y = this.y;
-  }
-
-}
-class MovingPoint extends Point{
-  constructor(from, to) {
-    super(from);
-    this.from = from;
-    this.to = to;
-    this.type = 'MovingPoint';
-    this.direction = null;
-  }
-}
-
-Object.assign(MovingPoint.prototype, moving);
-Object.assign(Point.prototype, notify);
-
-
-
-class Dot extends Point {
-  constructor(point, radius) {
-    super(point);
-    this.from = point;
-    this.to = point;
-    this.radius = radius;
-  }
-  go() {
-  }
-}
-
-class MovingDot extends MovingPoint {
-  constructor(radius, ...props) {
-    super(...props);
-    this.radius = radius;
-  }
-}
-
-class RandomDot extends Dot {
-  constructor({width, height}) {
-    super();
-    this.radius = randomOf(1,8);
-    this.x = randomOf(width);
-    this.y = randomOf(height);
-  }
-}
-
-
-
-class Creator {
-  constructor(div) {
-    this.points = new Points(div);
-    this.register([StaticPoint, MovingPoint]);
-  }
-
-  register(types) {
-    types.forEach(constructor => this[constructor.name] = constructor);
-  }
-  
-  create(type, ...props) {
-    props = props.map(arg => POINTS.includes(arg) ? this.points.get(arg) : arg);
-    return new this[type](...props);
-  }
-
-  getPoints() {
-    return this.points.getAll();
-  }
-}
+const FIGURES =  new Map()
+  .set('topLeft',     [ ['StaticPoint', A], ['MovingDot', A, B, 20], ['MovingDot', A, C, 30] ])
+  .set('bottomRight', [ ['StaticPoint', D], ['MovingPoint', D, B], ['MovingPoint', D, C] ]) 
+  .set('topRight',    [ ['StaticPoint', B], ['MovingPoint', B, A], ['MovingPoint', B, D] ])
+  .set('bottomLeft',  [ ['StaticPoint', C], ['MovingPoint', C, A], ['MovingPoint', C, D] ])
+  .set('fikmik',      [ ['StaticPoint', M], ['MovingPoint', M, C], ['MovingPoint', M, D] ])
+  .set('a',           [ ['StaticPoint', M], ['MovingPoint', M, A], ['MovingPoint', M, B] ])
+  .set('b',           [ ['StaticPoint', M], ['MovingPoint', M, B], ['MovingPoint', M, D] ])
+  .set('c',           [ ['StaticPoint', M], ['MovingPoint', M, D], ['MovingPoint', M, C] ])
+  .set('d',           [ ['StaticPoint', M], ['MovingPoint', M, C], ['MovingPoint', M, A] ])
+  .set('topCenter',   [ ['StaticPoint', A], ['StaticPoint', B],    ['MovingPoint', A, M] ])
+  .set('bottomCenter',[ ['StaticPoint', C], ['StaticPoint', D],    ['MovingPoint', D, M] ])
+  .set('rightCenter', [ ['StaticPoint', B], ['StaticPoint', D],    ['MovingPoint', D, M] ])
+  .set('leftCenter',  [ ['StaticPoint', A], ['StaticPoint', C],    ['MovingPoint', A, M] ]);
 
 class Points {
   constructor(div) {
-    this.points = new Map();
-
-    this.set(A, { x: 0, y: 0, refresh: function() {this.x = 0; this.y = 0}});
-    this.set(B, { x: div.clientWidth, y: 0, 
-      refresh: function({clientWidth}) {
-        this.x = clientWidth;
-        this.y = 0;
-      } 
-    });
-    this.set(C, { 
-      x: 0, 
-      y: div.clientHeight,
-      refresh: function({clientHeight}) {
-        this.x = 0;
-        this.y = clientHeight;
-      } 
-    });
-    this.set(D, { 
-      x: div.clientWidth, 
-      y: div.clientHeight, 
-      refresh: function ({clientWidth, clientHeight}) {
-        this.x = clientWidth;
-        this.y = clientHeight;
-      }
-    });
-    this.set(M, { 
-      x: div.clientWidth / 2, 
-      y: div.clientHeight / 2, 
-      refresh: function ({clientWidth, clientHeight}) {
-        this.x = clientWidth/2; 
-        this.y = clientHeight / 2;
-      }
-    });
-    this.set(L, { 
-      x: 0, 
-      y: div.clientHeight / 2,
-      refresh: function({clientHeight}) {
-        this.x = 0;
-        this.y = clientHeight / 2
-      } 
-    });
-    this.set(R, { 
-      x: div.clientWidth, 
-      y: div.clientHeight / 2, 
-      refresh: function({clientHeight, clientWidth}) {
-        this.x = clientWidth;
-        this.y = clientHeight / 2
-      } 
-    });
-  }
-
-  set(symbol, point) {
-    this.points.set(symbol,point);
-  }
-
-  get(name) {
-    return this.points.get(name);
+    this.points = new Map()
+      .set(A, { x: 0, y: 0, refresh: function() {this.x = 0; this.y = 0}})
+      .set(B, { x: div.clientWidth, y: 0, 
+        refresh: function({clientWidth}) {
+          this.x = clientWidth;
+          this.y = 0;
+          } 
+        })
+      .set(C, { 
+        x: 0, 
+        y: div.clientHeight,
+        refresh: function({clientHeight}) {
+          this.x = 0;
+          this.y = clientHeight;
+        } 
+      })
+      .set(D, { 
+        x: div.clientWidth, 
+        y: div.clientHeight, 
+        refresh: function ({clientWidth, clientHeight}) {
+          this.x = clientWidth;
+          this.y = clientHeight;
+        }
+      })
+      .set(M, { 
+        x: div.clientWidth / 2, 
+        y: div.clientHeight / 2, 
+        refresh: function ({clientWidth, clientHeight}) {
+          this.x = clientWidth/2; 
+          this.y = clientHeight / 2;
+        }
+      })
+      .set(L, { 
+        x: 0, 
+        y: div.clientHeight / 2,
+        refresh: function({clientHeight}) {
+          this.x = 0;
+          this.y = clientHeight / 2
+        } 
+      })
+      .set(R, { 
+        x: div.clientWidth, 
+        y: div.clientHeight / 2, 
+        refresh: function({clientHeight, clientWidth}) {
+          this.x = clientWidth;
+          this.y = clientHeight / 2
+        } 
+      });
   }
 
   getAll() {
     return this.points;
   }
 
+  refreshPoints(div) {
+    this.points.forEach(point => point.refresh(div))
+  }
+
 }
 
 class Figure {
-  constructor(div, name, draw = drawPoligon) {
+  constructor({points, name, draw = drawPoligon, color}) {
     this.name = name;
+    this.color = color;
     this.drawFunc = draw;
-    this.creator = new Creator(div);
+    this.elements = FIGURES.get(name)
+      .map(([constructor, ...letters]) => [constructor, ...letters.map(arg => points.has(arg) ? points.get(arg) : arg)])
+      .map(([element, ...args]) => new create[element](...args))
+  }
 
-    this.figures =  new Map()
-      .set('topLeft', [
-          this.creator.create('StaticPoint', A),
-          this.creator.create('MovingPoint', A, B),
-          this.creator.create('MovingPoint', A, C)
-        ])  
-    .set('bottomRight', [
-      this.creator.create('StaticPoint', D),
-      this.creator.create('MovingPoint', D, B),
-      this.creator.create('MovingPoint', D, C)
-    ])
-    
-    .set('topRight', [
-      this.creator.create('StaticPoint', B),
-      this.creator.create('MovingPoint', B, A),
-      this.creator.create('MovingPoint', B, D)
-    ])
-    
-    .set('bottomLeft', [
-      this.creator.create('StaticPoint', C),
-      this.creator.create('MovingPoint', C, A),
-      this.creator.create('MovingPoint', C, D)
-    ])
-    
-    .set('fikmik', [
-      this.creator.create('StaticPoint', M),
-      this.creator.create('MovingPoint', M, C),
-      this.creator.create('MovingPoint', M, D)
-    ])
-    
-    .set('a', [
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, A),
-        this.creator.create('MovingPoint', M, B),
-    ])
-    .set('b', [
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, B),
-        this.creator.create('MovingPoint', M, D),
-    ])
-    .set('c', [
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, D),
-        this.creator.create('MovingPoint', M, C),
-    ])
-    .set('d', [
-        this.creator.create('StaticPoint', M),
-        this.creator.create('MovingPoint', M, C),
-        this.creator.create('MovingPoint', M, A),
-    ])
-    .set('topCenter', [
-        this.creator.create('StaticPoint', A),
-        this.creator.create('StaticPoint', B),
-        this.creator.create('MovingPoint', A, M),
-    ])
-    .set('bottomCenter', [
-        this.creator.create('StaticPoint', C),
-        this.creator.create('StaticPoint', D),
-        this.creator.create('MovingPoint', D, M),
-    ])
-    .set('rightCenter', [
-        this.creator.create('StaticPoint', B),
-        this.creator.create('StaticPoint', D),
-        this.creator.create('MovingPoint', D, M),
-    ])
-    .set('leftCenter', [
-        this.creator.create('StaticPoint', A),
-        this.creator.create('StaticPoint', C),
-        this.creator.create('MovingPoint', A, M),
-    ]);
-    this.points = this.figures.get(name);
-  }
-  get(name) {
-    this.figures.get(name);
-  }
   go(t) {
-    this.points.forEach(point => point.go(t))
+    this.elements.forEach(point => point.go(t))
     return this;
-  }
-  
-  draw(ctx, color) {
-    this.drawFunc(ctx, color);
-    return this;
-  }
-  getPoints() {
-    this.creator.getPoints();
   }
 
+  draw(ctx) {
+    this.drawFunc(ctx);
+    return this;
+  }
 }
 
 
 
 class Curtain {
 
-  constructor(div, curtain) {
-    
-    this.curtains = new Map()
-    .set('abc', ['a', 'b', 'c', 'bottomRight'])
-    .set('corners', ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'])
-    .set('fikmik', ['topLeft', 'topRight', 'fikmik'])
-    .set('tocenter', ['topCenter']);
-
-    this.build(div, curtain)
-  } 
-  
-  build(div, curtain) {
-    this.figures = this.curtains.get(curtain).map(name => new Figure(div, name));
-  } 
-
-  refreshPoints(div) {
-    console.log(div);
-    this.curtain.getPoints().forEach(point => point.refresh(div))
+  constructor(div, curtain, ctx) {
+    this.points = new Points(div);
+    this.ctx = ctx;
+    this.figures = CURTAINS.get(curtain).map(name => new Figure({points: this.points.getAll(), name}));
+    this.elements = this.figures.reduce((all,{elements}) => [...all, ...elements],[]);
   }
-  draw(ctx, t, color) {
-    this.figures.forEach(figure => figure.draw(ctx, color).go(t));
+
+  draw(t) {
+    this.elements.forEach(elem => elem.draw());
+    this.figures.forEach(figure => figure.draw(this.ctx).go(t));
     return this
+  }
+
+  getSet () {
+    return this.elements
   }
   
 }
@@ -342,5 +151,5 @@ function plusMinus(num) {
 
 
 
-export { Point, Points, MovingPoint, Dot, MovingDot, Creator, Curtain, RandomDot };
+export { Points, Curtain };
 

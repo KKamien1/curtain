@@ -1,4 +1,4 @@
-import {Curtain} from './figures.js' 
+import {Curtain, Points} from './figures.js' 
 
 
 const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back', 'end'];
@@ -13,15 +13,11 @@ class Frame {
     this.t = 0;
     this.start = null;
     this.color = color || 'rgba(179,255,232,.9)';
-    this.phase = observable(START);
-    this.div.style.position = 'relative';
+    this.phase = observable(START);    
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.curtain = new Curtain(div, 'tocenter');
-    this.figures = this.curtain.figures;
-    this.set = this.figures.map(figure => figure.points);
-    this.set.flat().forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
+    this.createCurtain();
     this.events();
   }
   
@@ -59,11 +55,11 @@ class Frame {
   
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    //this.set.forEach(element => element.go(this.t));
-    this.curtain.draw(this.ctx, this.t, this.color);
+    this.curtain.draw(this.t);
   }
   
   createCanvas() {
+    this.div.style.position = 'relative';
     this.canvas = document.createElement('canvas');
     this.setSize = this.div;
     this.canvas.style.position = 'absolute';
@@ -74,11 +70,17 @@ class Frame {
     this.div.appendChild(this.canvas);
   }
 
+  createCurtain() {
+    this.curtain = new Curtain(this.div, 'corners', this.ctx);
+    this.set = this.curtain.getSet();
+    this.curtain.elements.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
+  }
+
   handleResize() {
     if (this.canvas) {
       this.setSize = this.div;
       this.ctx.fillStyle = this.color;
-      this.curtain.refreshPoints(this.div);
+      this.curtain.points.refreshPoints(this.div);
       this.draw();
       this.info;
     }
@@ -86,9 +88,9 @@ class Frame {
 
   get info() {
     const info = `
-    id:${this.id} ${this.div.clientWidth} x ${this.div.clientHeight}
-    canvas: ${this.canvas.width} x ${this.canvas.height}
-    `;
+      id:${this.id} ${this.div.clientWidth} x ${this.div.clientHeight}
+      canvas: ${this.canvas.width} x ${this.canvas.height}
+      `;
     console.log(info);
     return info;
   }
