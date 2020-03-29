@@ -16,8 +16,9 @@ const moving = {
       };
       break;
       default:
-        return;
+        return this;
     }
+    return this;
   },
 }
 
@@ -53,6 +54,7 @@ class StaticPoint extends Point{
   go() {
     this.x = this.from.x;
     this.y = this.from.y;
+    return this;
   }
 
 }

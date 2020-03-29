@@ -71,7 +71,7 @@ class Frame {
   }
 
   createCurtain() {
-    this.curtain = new Curtain(this.div, 'corners', this.ctx);
+    this.curtain = new Curtain(this.div, 'test2', this.ctx);
     this.set = this.curtain.getSet();
     this.curtain.elements.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
   }

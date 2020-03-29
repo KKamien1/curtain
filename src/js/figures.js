@@ -11,7 +11,8 @@ const CURTAINS = new Map()
 .set('corners', ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'])
 .set('fikmik',  ['topLeft', 'topRight', 'fikmik'])
 .set('test',    ['topLeft'])
-.set('tocenter',['topCenter', 'bottomCenter', 'leftCenter', 'rightCenter']);
+.set('tocenter',['topCenter', 'bottomCenter', 'leftCenter', 'rightCenter'])
+.set('test2',   ['leftToRight']);
 
 
 const FIGURES =  new Map()
@@ -27,7 +28,9 @@ const FIGURES =  new Map()
   .set('topCenter',   [ ['StaticPoint', A], ['StaticPoint', B],    ['MovingPoint', A, M] ])
   .set('bottomCenter',[ ['StaticPoint', C], ['StaticPoint', D],    ['MovingPoint', D, M] ])
   .set('rightCenter', [ ['StaticPoint', B], ['StaticPoint', D],    ['MovingPoint', D, M] ])
-  .set('leftCenter',  [ ['StaticPoint', A], ['StaticPoint', C],    ['MovingPoint', A, M] ]);
+  .set('leftCenter',  [ ['StaticPoint', A], ['StaticPoint', C],    ['MovingPoint', A, M] ])
+  .set('leftToRight',  [ ['StaticPoint', M], ['MovingPoint', C, D], ['MovingPoint', A, B] ])
+  .set('rightToLeft',  [ ['StaticPoint', M], ['MovingPoint', D, C], ['MovingPoint', B, A] ]);
 
 class Points {
   constructor(div) {
@@ -101,8 +104,8 @@ class Figure {
       .map(([element, ...args]) => new create[element](...args))
   }
 
-  go(t) {
-    this.elements.forEach(point => point.go(t))
+  drawAndUpdate(t) {
+    this.elements.forEach(point => point.go(t).draw())
     return this;
   }
 
@@ -111,7 +114,6 @@ class Figure {
     return this;
   }
 }
-
 
 
 class Curtain {
@@ -124,8 +126,7 @@ class Curtain {
   }
 
   draw(t) {
-    this.elements.forEach(elem => elem.draw());
-    this.figures.forEach(figure => figure.draw(this.ctx).go(t));
+    this.figures.forEach(figure => figure.draw(this.ctx).drawAndUpdate(t));
     return this
   }
 
