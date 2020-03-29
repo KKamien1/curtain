@@ -6,12 +6,12 @@ import pointsFactory from './points.js';
 const [A, B, C, D, M, L, R] = ['A', 'B', 'C', 'D', 'M', 'L', 'R']; // POINTS  
 
 const CURTAINS = new Map()
-.set('abc',     ['a', 'b', 'c', 'bottomRight'])
+.set('tocenter',['topCenter', 'bottomCenter', 'leftCenter', 'rightCenter'])
 .set('corners', ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'])
 .set('fikmik',  ['topLeft', 'topRight', 'fikmik'])
-.set('test',    ['topLeft'])
-.set('tocenter',['topCenter', 'bottomCenter', 'leftCenter', 'rightCenter'])
-.set('test2',   ['leftToRight']);
+.set('abc',     ['a', 'b', 'c', 'bottomRight'])
+.set('test2',   ['leftToRight'])
+.set('test',    ['topLeft']);
 
 
 const FIGURES =  new Map()
@@ -28,8 +28,8 @@ const FIGURES =  new Map()
   .set('bottomCenter',[ ['StaticPoint', C], ['StaticPoint', D],    ['MovingPoint', D, M] ])
   .set('rightCenter', [ ['StaticPoint', B], ['StaticPoint', D],    ['MovingPoint', D, M] ])
   .set('leftCenter',  [ ['StaticPoint', A], ['StaticPoint', C],    ['MovingPoint', A, M] ])
-  .set('leftToRight',  [ ['StaticPoint', M], ['MovingPoint', C, D], ['MovingPoint', A, B] ])
-  .set('rightToLeft',  [ ['StaticPoint', M], ['MovingPoint', D, C], ['MovingPoint', B, A] ]);
+  .set('leftToRight', [ ['StaticPoint', M], ['MovingPoint', C, D], ['MovingPoint', A, B] ])
+  .set('rightToLeft', [ ['StaticPoint', M], ['MovingPoint', D, C], ['MovingPoint', B, A] ]);
 
 
 
@@ -59,11 +59,9 @@ class Figure {
 class Curtain {
 
   constructor(div, curtain, ctx) {
-
+    this.ctx = ctx;
     pointsFactory.add(div);
     this.points = pointsFactory.get(div);
-
-    this.ctx = ctx;
     this.figures = CURTAINS.get(curtain).map(name => new Figure({points: this.points.getAll(), name}));
     this.elements = this.figures.reduce((all,{elements}) => [...all, ...elements],[]);
   }
@@ -76,7 +74,6 @@ class Curtain {
   getSet () {
     return this.elements
   }
-  
 }
 
 

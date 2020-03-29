@@ -13,6 +13,14 @@ function drawPoligon(ctx) {
   ctx.fillStyle = defaultColor;
 }
 
+function debounce (callback,wait) {
+  let timeout;
+  return () => {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => callback.apply(context,arguments), wait);
+  }
+}
 
 function randomOf(value, start = 0) {
   return Math.floor(Math.random() * (value - start + 1)) + start;
@@ -232,7 +240,7 @@ function setColor(parameters) {
 }
 
 
-export {  update,
+export {  debounce, update,
   pointInDiv,
   randomPoint,
   generate,
