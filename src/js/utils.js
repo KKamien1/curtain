@@ -243,6 +243,7 @@ function setColor(parameters) {
 export {  debounce, update,
   pointInDiv,
   randomPoint,
+  randomOf,
   generate,
   drawLineOfClosest,
   findClosest,
