@@ -37,7 +37,7 @@ function plusMinus(num) {
 }
 
 function drawCircle(center, radius = 3, color = "rgba(100,100,100,.8)") {
-  defaultColor = ctx.fillStyle;
+  let defaultColor = ctx.fillStyle;
   ctx.fillStyle = color || ctx.fillStyle;
   ctx.beginPath();
   ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);

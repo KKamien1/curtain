@@ -2,8 +2,7 @@ import {drawPoligon} from './utils.js';
 
 import create from './creator.js';
 import pointsFactory from './points.js';
-
-const [A, B, C, D, M, L, R] = ['A', 'B', 'C', 'D', 'M', 'L', 'R']; // POINTS  
+import {A, B, C, D, M, L, R, RANDOM} from './points.js';
 
 const CURTAINS = new Map()
 .set('tocenter',['topCenter', 'bottomCenter', 'leftCenter', 'rightCenter'])
@@ -11,7 +10,8 @@ const CURTAINS = new Map()
 .set('fikmik',  ['topLeft', 'topRight', 'fikmik'])
 .set('abc',     ['a', 'b', 'c', 'bottomRight'])
 .set('test2',   ['leftToRight'])
-.set('test',    ['topLeft']);
+.set('test',    ['topLeft', 'randomLeft'])
+.set('random',['randomLeft', 'randomTop', 'randomRight', 'randomBottom']);
 
 
 const FIGURES =  new Map()
@@ -29,7 +29,11 @@ const FIGURES =  new Map()
   .set('rightCenter', [ ['StaticPoint', B], ['StaticPoint', D],    ['MovingPoint', D, M] ])
   .set('leftCenter',  [ ['StaticPoint', A], ['StaticPoint', C],    ['MovingPoint', A, M] ])
   .set('leftToRight', [ ['StaticPoint', M], ['MovingPoint', C, D], ['MovingPoint', A, B] ])
-  .set('rightToLeft', [ ['StaticPoint', M], ['MovingPoint', D, C], ['MovingPoint', B, A] ]);
+  .set('rightToLeft', [ ['StaticPoint', M], ['MovingPoint', D, C], ['MovingPoint', B, A] ])
+  .set('randomLeft', [ ['StaticPoint', A], ['StaticPoint', C], ['MovingPoint', A, RANDOM] ])
+  .set('randomTop', [ ['StaticPoint', RANDOM], ['MovingPoint', RANDOM, A], ['MovingPoint', RANDOM, B] ])
+  .set('randomRight', [ ['StaticPoint', B], ['StaticPoint', D], ['MovingPoint', D, RANDOM] ])
+  .set('randomBottom', [ ['StaticPoint', RANDOM], ['MovingPoint', RANDOM, C], ['MovingPoint', RANDOM, D] ]);
 
 
 
@@ -44,13 +48,9 @@ class Figure {
       .map(([element, ...args]) => new create[element](...args))
   }
 
-  drawAndUpdate(t) {
-    this.elements.forEach(point => point.go(t).draw())
-    return this;
-  }
-
-  draw(ctx) {
+  draw(ctx, t) {
     this.drawFunc(ctx);
+    this.elements.forEach(point => point.go(t).draw())
     return this;
   }
 }
@@ -67,7 +67,7 @@ class Curtain {
   }
 
   draw(t) {
-    this.figures.forEach(figure => figure.draw(this.ctx).drawAndUpdate(t));
+    this.figures.forEach(figure => figure.draw(this.ctx, t));
     return this
   }
 

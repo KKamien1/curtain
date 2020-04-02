@@ -20,14 +20,12 @@ class Frame {
     this.createCanvas();
     this.createCurtain();
     this.events();
-
-    const elo = "Everywhere";
   }
   
   events() {
     this.div.addEventListener('mouseenter', () => {this.notify(FORWARD)});
     this.div.addEventListener('mouseleave', () => this.notify(BACK));
-    window.addEventListener('resize', debounce((e)=> this.handleResize(), 500));
+    window.addEventListener('resize', debounce(()=> this.handleResize(), 10));
   }
   
   notify(eventType) {
@@ -74,7 +72,7 @@ class Frame {
   }
 
   createCurtain() {
-    this.curtain = new Curtain(this.div, 'corners', this.ctx);
+    this.curtain = new Curtain(this.div, 'random', this.ctx);
     this.set = this.curtain.getSet();
     this.curtain.elements.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
   }

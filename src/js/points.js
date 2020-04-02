@@ -1,8 +1,12 @@
-const [A, B, C, D, M, L, R] = ['A', 'B', 'C', 'D', 'M', 'L', 'R']; // POINTS
+// import { randomPoint } from "./utils.js";
+import create from './Creator.js'
+export const [A, B, C, D, M, L, R, RANDOM] = ['A', 'B', 'C', 'D', 'M', 'L', 'R', 'RANDOM'];
+//export const POINTS = [A, B, C, D, M, L, R, RANDOM];
 
 
 class Points {
   constructor(div) {
+
     this.points = new Map()
       .set(A, { x: 0, y: 0, refresh() {this.x = 0; this.y = 0}})
       .set(B, { x: div.clientWidth, y: 0, 
@@ -50,7 +54,8 @@ class Points {
           this.x = clientWidth;
           this.y = clientHeight / 2
         } 
-      });
+      })
+      .set(RANDOM, new create['RandomPoint'](div));
   }
 
   getAll() {

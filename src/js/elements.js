@@ -50,7 +50,6 @@ class StaticPoint extends Point{
   constructor(from, radius) {
     super(from, radius);
     this.from = from;
-    this.type = 'StaticPoint';
   }
   go() {
     this.x = this.from.x;
@@ -64,7 +63,6 @@ class MovingPoint extends Point{
     super(from);
     this.from = from;
     this.to = to;
-    this.type = 'MovingPoint';
     this.direction = null;
   }
 }
@@ -90,14 +88,23 @@ class MovingDot extends MovingPoint {
   }
 }
 
-class RandomDot extends Dot {
-  constructor({width, height}) {
-    super();
-    this.radius = randomOf(1,8);
-    this.x = randomOf(width);
-    this.y = randomOf(height);
+class RandomPoint {
+  constructor({clientWidth, clientHeight}) {
+    this.xProportion = Math.random();
+    this.yProportion = Math.random();
+    this.x = this.xProportion * clientWidth;
+    this.y = this.yProportion * clientHeight;
+    console.log(this.constructor.name, this);
+  }
+  refresh({clientWidth, clientHeight}) {
+    this.x = 50;
+    this.y = 50;
+
+    // this.x = this.xProportion * clientWidth;
+    // this.y = this.yProportion * clientHeight;
+    console.log('refresh', this);
   }
 }
 
 
-export default [Point, StaticPoint, MovingPoint, Dot, MovingDot, RandomDot];
+export default [Point, StaticPoint, MovingPoint, Dot, MovingDot, RandomPoint];
