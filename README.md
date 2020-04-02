@@ -18,7 +18,7 @@
   - Factory : Points, 
   - Abstract Factory : Figures
   - Observer : Frame.phase
-  - Singleton : Creator
+  - Singleton : Creator, PointsFactory
 - EVENTS
  - debounce resize
 

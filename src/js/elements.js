@@ -1,5 +1,6 @@
 
 import {Easing} from './easing.js';
+import {randomOf} from './utils.js';
 const sampleFunct = (start, end, t, d, s) => Easing.get("easeInOutCirc", start, end, t, d, s)
 
 const moving = {
@@ -8,12 +9,12 @@ const moving = {
       case 'forward' : {
         this.x = sampleFunct(this.from.x, this.to.x, t, this.duration, 0 );
         this.y = sampleFunct(this.from.y, this.to.y, t, this.duration, 0 );
-      };
+      }
       break;
       case 'back' : {
         this.x = sampleFunct(this.to.x, this.from.x, t, this.duration, 0 );
         this.y = sampleFunct(this.to.y, this.from.y, t, this.duration, 0 );
-      };
+      }
       break;
       default:
         return this;

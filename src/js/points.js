@@ -4,9 +4,9 @@ const [A, B, C, D, M, L, R] = ['A', 'B', 'C', 'D', 'M', 'L', 'R']; // POINTS
 class Points {
   constructor(div) {
     this.points = new Map()
-      .set(A, { x: 0, y: 0, refresh: function() {this.x = 0; this.y = 0}})
+      .set(A, { x: 0, y: 0, refresh() {this.x = 0; this.y = 0}})
       .set(B, { x: div.clientWidth, y: 0, 
-        refresh: function({clientWidth}) {
+        refresh ({clientWidth}) {
           this.x = clientWidth;
           this.y = 0;
           } 
@@ -14,7 +14,7 @@ class Points {
       .set(C, { 
         x: 0, 
         y: div.clientHeight,
-        refresh: function({clientHeight}) {
+        refresh ({clientHeight}) {
           this.x = 0;
           this.y = clientHeight;
         } 
@@ -22,7 +22,7 @@ class Points {
       .set(D, { 
         x: div.clientWidth, 
         y: div.clientHeight, 
-        refresh: function ({clientWidth, clientHeight}) {
+        refresh ({clientWidth, clientHeight}) {
           this.x = clientWidth;
           this.y = clientHeight;
         }
@@ -30,7 +30,7 @@ class Points {
       .set(M, { 
         x: div.clientWidth / 2, 
         y: div.clientHeight / 2, 
-        refresh: function ({clientWidth, clientHeight}) {
+        refresh ({clientWidth, clientHeight}) {
           this.x = clientWidth/2; 
           this.y = clientHeight / 2;
         }
@@ -38,7 +38,7 @@ class Points {
       .set(L, { 
         x: 0, 
         y: div.clientHeight / 2,
-        refresh: function({clientHeight}) {
+        refresh({clientHeight}) {
           this.x = 0;
           this.y = clientHeight / 2
         } 
@@ -46,7 +46,7 @@ class Points {
       .set(R, { 
         x: div.clientWidth, 
         y: div.clientHeight / 2, 
-        refresh: function({clientHeight, clientWidth}) {
+        refresh({clientHeight, clientWidth}) {
           this.x = clientWidth;
           this.y = clientHeight / 2
         } 
