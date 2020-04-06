@@ -6,9 +6,11 @@ const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back',
 
 
 class Frame {
-  constructor({div, duration, color}) {
+  constructor({div, type, duration, color}) {
     this.div = div;
     this.id = div.id;
+    this.container = this.div.querySelector('.frame__container');
+    this.overlay = this.div.querySelector('.frame__overlay');
     this.duration = duration || 500;
     this.fps = 60;
     this.t = 0;
@@ -18,12 +20,14 @@ class Frame {
     this.loop = this.loop.bind(this);
     this.requestId = undefined;
     this.createCanvas();
-    this.createCurtain();
+    this.createCurtain(type);
     this.events();
   }
   
   events() {
-    this.div.addEventListener('mouseenter', () => {this.notify(FORWARD)});
+    this.div.addEventListener('mouseenter', () => {
+      this.notify(FORWARD)
+    });
     this.div.addEventListener('mouseleave', () => this.notify(BACK));
     window.addEventListener('resize', debounce(()=> this.handleResize(), 10));
   }
@@ -33,9 +37,9 @@ class Frame {
     this.phase(eventType);
     switch (eventType) {
       case FORWARD: this.requestId = requestAnimationFrame(this.loop); break;
-      case BACK:    this.requestId = requestAnimationFrame(this.loop); break;
-      case PAUSE:   window.cancelAnimationFrame(this.requestId);       break;
-      case END:     window.cancelAnimationFrame(this.requestId);       break;
+      case BACK:    {this.requestId = requestAnimationFrame(this.loop); this.back();} break;
+      case PAUSE:   { window.cancelAnimationFrame(this.requestId); this.pause() }     break;
+      case END:     {window.cancelAnimationFrame(this.requestId); this.end()}      break;
       default: return;
     }
   }
@@ -58,6 +62,19 @@ class Frame {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.curtain.draw(this.t);
   }
+
+  pause() {
+    this.container.classList.add('frame__container--hidden');
+    this.overlay.classList.add('frame__overlay--show');
+  }
+  back() {
+    //this.container.classList.add('frame__container--hidden');
+    this.overlay.classList.remove('frame__overlay--show');
+  }
+  end() {
+    this.container.classList.remove('frame__container--hidden');
+    //this.overlay.classList.remove('frame__overlay--show')
+  }
   
   createCanvas() {
     this.div.style.position = 'relative';
@@ -71,8 +88,8 @@ class Frame {
     this.div.appendChild(this.canvas);
   }
 
-  createCurtain() {
-    this.curtain = new Curtain(this.div, 'random', this.ctx);
+  createCurtain(type) {
+    this.curtain = new Curtain(this.div, type, this.ctx);
     this.set = this.curtain.getSet();
     this.curtain.elements.forEach(el => {this.phase.subscribe(el);Object.assign(el, {ctx:this.ctx,  duration:this.duration}) });
   }

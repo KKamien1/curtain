@@ -1,17 +1,19 @@
+* {
+  box-sizing: content-box; 
+}
 html {
   width: 100%;
   height: 100%
 }
 
 body {
-  display: flex;
-  
+  display: flex;  
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
   width: 100%;
   background: #00C1CF;
   overflow: hidden;
-  color: #1747ff;
+  color: rgb(0, 138, 108);
   height: 100%;
 }
 
@@ -20,6 +22,12 @@ body {
   height: 150px;
   background: #6BE8CD;
   border: 3px solid #333B4F; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  text-align: center;
 }
 
 #frame2 {
@@ -33,4 +41,42 @@ body {
   background: #3776A1;
 }
 
+.frame__container {
+  min-height: 100%;
+  min-width: 100%;
+  padding: 2rem;
+  color: #daf1ff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all .5s ease
+
+}
+
+.frame__container--hidden { 
+
+  opacity: 0;
+
+}
+
+.frame__overlay {
+  /* display: none; */
+  padding: .5rem;
+  position: absolute;
+  z-index: 100;
+  margin: -100% 0 0 0;
+  transition: all .2s ease
+}
+
+.frame__overlay--show {
+  display: block;
+  margin: 0;
+
+}
+
+h2 {
+  font-size: 1.3rem;
+  color: #003554;
+}
 
