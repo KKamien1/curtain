@@ -8,11 +8,11 @@ const [START, FORWARD, PAUSE, BACK, END] = ['start', 'forward', 'pause', 'back',
 class Frame {
   constructor({div, type, duration, color}) {
     this.div = div;
-    this.id = div.id;
     this.container = this.div.querySelector('.frame__container');
     this.overlay = this.div.querySelector('.frame__overlay');
     this.duration = duration || 500;
     this.fps = 60;
+    this.id = Math.random() * 100; 
     this.t = 0;
     this.start = null;
     this.color = color || 'rgba(179,255,232,.9)';
@@ -22,14 +22,28 @@ class Frame {
     this.createCanvas();
     this.createCurtain(type);
     this.events();
+    this.onEnterHandler = this.onEnterHandler.bind(this);
+    this.onLeaveHandler = this.onLeaveHandler.bind(this);
+    this.div.addEventListener('mouseenter', this.onEnterHandler);
+    this.div.addEventListener('mouseleave', this.onLeaveHandler);
+  }
+  
+  onEnterHandler() {
+    this.notify(FORWARD);
+  }
+  
+  onLeaveHandler() {
+    this.notify(BACK);
   }
   
   events() {
-    this.div.addEventListener('mouseenter', () => {
-      this.notify(FORWARD)
-    });
-    this.div.addEventListener('mouseleave', () => this.notify(BACK));
     window.addEventListener('resize', debounce(()=> this.handleResize(), 10));
+  }
+
+  destroy() {
+    this.div.removeEventListener('mouseenter', this.onEnterHandler)
+    this.div.removeEventListener('mouseleave', this.onLeaveHandler)
+    window.removeEventListener('resize', debounce);
   }
   
   notify(eventType) {
@@ -64,6 +78,7 @@ class Frame {
   }
 
   pause() {
+    console.log(this.id);
     this.container.classList.add('frame__container--hidden');
     this.overlay.classList.add('frame__overlay--show');
   }
@@ -117,6 +132,8 @@ class Frame {
     this.canvas.width = clientWidth;
     this.canvas.height = clientHeight;
   }
+
+
 
 }
 

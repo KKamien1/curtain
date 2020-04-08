@@ -15,7 +15,7 @@ const CURTAINS = new Map()
 
 
 const FIGURES =  new Map()
-  .set('topLeft',     [ ['StaticPoint', A], ['MovingDot', A, B, 20], ['MovingDot', A, C, 30] ])
+  .set('topLeft',     [ ['StaticPoint', A], ['MovingDot', A, B], ['MovingDot', A, C] ])
   .set('bottomRight', [ ['StaticPoint', D], ['MovingPoint', D, B], ['MovingPoint', D, C] ]) 
   .set('topRight',    [ ['StaticPoint', B], ['MovingPoint', B, A], ['MovingPoint', B, D] ])
   .set('bottomLeft',  [ ['StaticPoint', C], ['MovingPoint', C, A], ['MovingPoint', C, D] ])
@@ -77,5 +77,5 @@ class Curtain {
 }
 
 
-export { Curtain };
+export { Curtain , CURTAINS };
 

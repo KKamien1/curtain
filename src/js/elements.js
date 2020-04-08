@@ -94,7 +94,6 @@ class RandomPoint {
     this.yProportion = Math.random();
     this.x = this.xProportion * clientWidth;
     this.y = this.yProportion * clientHeight;
-    console.log(this.constructor.name, this);
   }
   refresh({clientWidth, clientHeight}) {
     this.x = 50;

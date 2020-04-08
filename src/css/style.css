@@ -7,14 +7,25 @@ html {
 }
 
 body {
-  display: flex;  
-  justify-content: center;
+  display: flex;
+  flex-direction: column;  
+  /* justify-content: center; */
   /* align-items: center; */
   width: 100%;
   background: #00C1CF;
   overflow: hidden;
   color: rgb(0, 138, 108);
   height: 100%;
+}
+
+header {
+  margin-bottom: 2rem;
+}
+
+button {
+  width:200px;
+  height: 2em;
+  transition: all ease 0.3s ;
 }
 
 .frame {
@@ -79,4 +90,20 @@ h2 {
   font-size: 1.3rem;
   color: #003554;
 }
+h3 {
+  font-size: 1rem;
+  color: #003554;
+}
 
+
+.button__type {
+  border: none;
+}
+
+.active {
+  color: white;
+  background: #3776A1;
+}
+.active:focus {
+  outline: 0;
+}
